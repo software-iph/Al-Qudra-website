@@ -1,13 +1,14 @@
-# ALQUDRA website + dashboard (alqudra-ec.com) - lives in /opt/alqudra on the VPS.
+# ALQUDRA website + dashboard (alqudra-ec.com) - lives in /opt/alqudra on the VPS:
+#   /opt/alqudra/.env        secrets (not in git)
+#   /opt/alqudra/src/        this GitHub repo; update with: sh /opt/alqudra/update.sh
+# Used with --project-directory /opt/alqudra (see update.sh), so paths below start there.
 # One Next.js app serves the public site AND the dashboard (/admin); PostgreSQL stores the content.
-# Reached only through Nginx Proxy Manager:
-#   https://www.alqudra-ec.com + https://alqudra-ec.com  ->  alqudra-web:3000
-# No "ports:" -> nothing is opened on the host; other sites on the VPS are untouched.
+# Planned: Nginx Proxy Manager  alqudra-ec.com + www  ->  alqudra-web:3000 (then remove "ports").
 name: alqudra
 
 services:
   alqudra-web:
-    build: ./web                      # folder with the prebuilt app (see README)
+    build: ./src/web                  # GitHub code, cloned to /opt/alqudra/src (built on the VPS)
     image: alqudra-web
     container_name: alqudra-web
     restart: unless-stopped

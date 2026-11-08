@@ -1,64 +1,51 @@
 # Alqudra - deployment to the company VPS
 
-**Status: prepared, NOT deployed.** Nothing on the VPS has been changed.
+**Status: live** at http://102.203.203.160:3008 (domain not connected yet).
 
-The new site is one **Next.js** app (`alqudra/web`) that serves both the public website
-(`/ar`, `/en`) and the dashboard (`/admin`), with **PostgreSQL** for content. It replaces the
-old React frontend + PHP/Laravel backend (those folders are kept only for reference).
+The site is one **Next.js** app (`web/`) that serves both the public website (`/ar`, `/en`)
+and the dashboard (`/admin`), with **PostgreSQL** for content.
 
-The VPS (`102.203.203.160`) hosts other live sites (trass, farqadan, meraas, gheras, enmaa, iph).
-Everything below only creates new `alqudra-*` containers in `/opt/alqudra`. Never restart Nginx
-Proxy Manager, the Docker daemon, or any other site's containers.
+The VPS (`102.203.203.160`) hosts other live sites. Everything here only uses the
+`alqudra-*` containers in `/opt/alqudra`. Never restart Nginx Proxy Manager, the Docker daemon,
+or any other site's containers.
 
-| Container     | Image                           | Purpose                                | Network         |
-|---------------|---------------------------------|----------------------------------------|-----------------|
-| `alqudra-web` | built from the prebuilt app     | Website + dashboard (Node, port 3000)  | proxy, internal |
-| `alqudra-db`  | postgres:18-alpine              | Database                               | internal        |
+| Container     | Image                     | Purpose                               | Network         |
+|---------------|---------------------------|---------------------------------------|-----------------|
+| `alqudra-web` | built on the VPS from git | Website + dashboard (Node, port 3000) | proxy, internal |
+| `alqudra-db`  | postgres:18-alpine        | Database                              | internal        |
 
-No container publishes a host port. Uploaded photos/videos live in the `alqudra_uploads` volume.
+Uploaded photos/videos live in the `alqudra_uploads` volume, the database in `alqudra_db`.
 
-## 1. Build on a PC (not on the server)
+## Updating the site (normal workflow)
 
-```bash
-cd alqudra/web
-npm ci
-npm run build
-```
+1. Push your changes to `main` on GitHub.
+2. On the VPS:
 
-This produces `.next/standalone` (the server), `.next/static`, plus `public/` and `drizzle/`.
+   ```bash
+   sh /opt/alqudra/update.sh
+   ```
 
-## 2. Copy to the VPS
+   It pulls the code, builds a new image on the VPS, and restarts only `alqudra-web`
+   (database and uploads are kept). If the build fails, the running site stays as it was.
+
+Content (texts, photos, services, jobs) is edited in the dashboard - no update needed.
+
+## First-time setup (already done)
 
 ```
 /opt/alqudra/
-  docker-compose.yml        <- deploy/docker-compose.yml
-  .env                      <- from deploy/env.production.example (chmod 600)
-  web/
-    Dockerfile              <- web/Dockerfile
-    .dockerignore           <- web/.dockerignore
-    .next/standalone/  .next/static/  public/  drizzle/
+  .env            <- from deploy/env.production.example (chmod 600)
+  src/            <- git clone https://github.com/software-iph/Al-Qudra-website.git
+  update.sh       <- symlink to src/deploy/update.sh
 ```
 
-## 3. Configure `.env`
+In `.env` fill `DB_PASSWORD` and `SESSION_SECRET` with long random values (`openssl rand -hex 32`)
+and `ADMIN_EMAIL` / `ADMIN_PASSWORD` for the first dashboard user, then run `sh /opt/alqudra/update.sh`
+and start the database too: `docker compose --project-directory /opt/alqudra -f /opt/alqudra/src/deploy/docker-compose.yml up -d`.
+On first start the app creates the tables and the first-run content; restarts never overwrite
+dashboard edits.
 
-Fill `DB_PASSWORD` and `SESSION_SECRET` with long random values (`openssl rand -hex 32`),
-and set `ADMIN_EMAIL` / `ADMIN_PASSWORD` for the first dashboard user (a real mailbox and a
-strong password - not the local test login).
-
-## 4. Start
-
-```bash
-cd /opt/alqudra
-docker compose build alqudra-web      # only copies files, no compiling
-docker compose up -d
-docker compose logs -f alqudra-web    # look for "Created the first dashboard user"
-```
-
-On start the app applies database migrations and loads the first-run content (texts from the
-identity file, photos, services, gallery). Restarting never overwrites dashboard edits.
-After the first user exists, blank `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `.env`.
-
-## 5. Nginx Proxy Manager (port 81)
+## Nginx Proxy Manager (port 81)
 
 Add one proxy host: `alqudra-ec.com` and `www.alqudra-ec.com` -> `http://alqudra-web:3000`,
 with *Websockets support* on, and in *Advanced*:
@@ -68,9 +55,9 @@ client_max_body_size 120m;
 ```
 
 (otherwise video uploads in the dashboard fail). The dashboard login cookie is HTTPS-only in
-production, so test the dashboard after SSL is issued (step 7).
+production, so test the dashboard after SSL is issued (see SSL below).
 
-## 6. DNS (cPanel at libyanspider -> Zone Editor for `alqudra-ec.com`)
+## DNS (cPanel at libyanspider -> Zone Editor for `alqudra-ec.com`)
 
 - `A  @    -> 102.203.203.160` (now 102.213.180.4, the cPanel redirect)
 - `A  www  -> 102.203.203.160` (now 178.18.242.177, the old server)
@@ -78,7 +65,13 @@ production, so test the dashboard after SSL is issued (step 7).
   pointing to the old server until that is retired.
 - **Do not touch the MX records** (`mx1-mx4.secure.ly`) - company email depends on them.
 
-## 7. SSL + checks
+## Switching from the test port to the domain
+
+After the proxy host works, set `SITE_URL=https://www.alqudra-ec.com` in `/opt/alqudra/.env`
+(this also makes the login cookie HTTPS-only), remove the `ports:` lines from
+`deploy/docker-compose.yml`, push, and run `sh /opt/alqudra/update.sh`.
+
+## SSL + checks
 
 Request Let's Encrypt certificates in Nginx Proxy Manager for both hosts, with *Force SSL*. Then:
 
@@ -89,9 +82,8 @@ Request Let's Encrypt certificates in Nginx Proxy Manager for both hosts, with *
 ## Day-to-day
 
 - Content: **https://www.alqudra-ec.com/admin** - no deploy needed.
-- Code change: rebuild on a PC (step 1), copy `web/`, then
-  `docker compose build alqudra-web && docker compose up -d alqudra-web`.
-- Backup: `docker compose exec alqudra-db pg_dump -U alqudra alqudra > alqudra-$(date +%F).sql`
+- Code change: push to GitHub, then `sh /opt/alqudra/update.sh` on the VPS.
+- Backup: `docker exec alqudra-db pg_dump -U alqudra alqudra > alqudra-$(date +%F).sql`
   plus the `alqudra_uploads` volume.
 
 ## Local development

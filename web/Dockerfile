@@ -1,14 +1,21 @@
 # Production image for the Alqudra website + dashboard (Next.js standalone).
-#
-# The app is built on a PC first (no heavy build on the shared VPS):
-#   npm ci && npm run build
-# then this image only copies the finished server:
-#   docker build -t alqudra-web .
+# Built on the VPS from the GitHub code: deploy/update.sh (git pull + docker compose build).
 #
 # Runtime: node server.js on port 3000. On start it applies database migrations
 # and adds missing first-run content (see src/instrumentation.ts).
-FROM node:22-alpine
 
+# ---- 1. Build ----
+FROM node:22-alpine AS build
+WORKDIR /app
+ENV NEXT_TELEMETRY_DISABLED=1
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
+COPY . .
+RUN npm run build
+
+# ---- 2. Run (only the finished server, no source or dev packages) ----
+FROM node:22-alpine
+LABEL project=alqudra
 ENV NODE_ENV=production \
     NEXT_TELEMETRY_DISABLED=1 \
     PORT=3000 \
@@ -17,13 +24,13 @@ ENV NODE_ENV=production \
 WORKDIR /app
 RUN addgroup -S app && adduser -S app -G app
 
-COPY --chown=app:app .next/standalone ./
-COPY --chown=app:app .next/static ./.next/static
-COPY --chown=app:app public ./public
-COPY --chown=app:app drizzle ./drizzle
+COPY --from=build --chown=app:app /app/.next/standalone ./
+COPY --from=build --chown=app:app /app/.next/static ./.next/static
+COPY --from=build --chown=app:app /app/public ./public
+COPY --from=build --chown=app:app /app/drizzle ./drizzle
 
-# Windows-built image tools are not used (the site does not use next/image); uploads go to a volume.
-RUN rm -rf node_modules/@img node_modules/sharp uploads \
+# The site does not use next/image; uploads go to a volume.
+RUN rm -rf node_modules/@img node_modules/sharp uploads .env* \
     && mkdir -p uploads && chown app:app uploads
 
 USER app

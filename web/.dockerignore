@@ -1,8 +1,10 @@
-# Only the prebuilt server is copied into the image (see Dockerfile).
-*
-!.next/standalone
-!.next/static
-!public
-!drizzle
-.next/standalone/uploads
-.next/standalone/.env*
+# The image builds from source; keep local/build files and secrets out.
+node_modules
+.next
+.git
+.env*
+uploads
+*.tsbuildinfo
+next-env.d.ts
+Dockerfile
+.dockerignore
