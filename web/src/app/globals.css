@@ -1,0 +1,267 @@
+@import "tailwindcss";
+
+/* Alqudra brand - from the corporate identity file (navy #163853, Almarai). */
+@theme {
+  --font-sans: var(--font-almarai), "Segoe UI", system-ui, sans-serif;
+
+  --color-navy-950: #071322;
+  --color-navy-900: #0b1c30;
+  --color-navy-800: #102a45;
+  --color-navy-700: #163853;
+  --color-navy-600: #1f4b6e;
+  --color-navy-500: #2c6290;
+  --color-steel: #2f3d4f;
+  --color-sky: #7fb2e5;
+  --color-sky-soft: #dbe9f7;
+  --color-paper: #f5f7fa;
+  --color-ink: #0e1a28;
+  --color-muted: #5d6b7b;
+  --color-line: #e2e8f0;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+}
+
+/* Home hero video: slow cinematic zoom-out when the page opens */
+.aq-hero-video { animation: aq-hero-zoom 14s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes aq-hero-zoom {
+  from { transform: scale(1.15); }
+  to { transform: scale(1); }
+}
+
+/* Accent line under page titles draws itself in */
+.aq-line { animation: aq-line 1.2s 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes aq-line {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* Gentle floating badge */
+.aq-float { animation: aq-float 6s ease-in-out infinite; }
+@keyframes aq-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ---- 3D coverflow carousel ("Inside Al-Qudra") ---- */
+.aq-card {
+  --w: 240px;
+  --h: 180px;
+  --gap1: 120px;
+  --gap2: 230px;
+  width: var(--w);
+  height: var(--h);
+  margin: calc(var(--h) / -2) 0 0 calc(var(--w) / -2);
+  /* springy settle: slight overshoot at the end of each move */
+  transition:
+    transform 1s cubic-bezier(0.34, 1.25, 0.5, 1),
+    opacity 0.8s ease,
+    box-shadow 0.8s ease;
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+@media (min-width: 640px) {
+  .aq-card { --w: 400px; --h: 290px; --gap1: 240px; --gap2: 440px; }
+}
+.aq-card img { transition: filter 0.9s ease; }
+
+/* Positions: side cards swing round in 3D (coverflow) */
+.aq-card[data-pos="0"] { z-index: 10; transform: translateX(0) translateZ(0) rotateY(0) scale(1.1); box-shadow: 0 34px 60px rgb(7 19 34 / 0.28); }
+.aq-card[data-pos="1"] { z-index: 5; opacity: 0.92; transform: translateX(var(--gap1)) translateZ(-120px) rotateY(-28deg) scale(0.9); }
+.aq-card[data-pos="-1"] { z-index: 5; opacity: 0.92; transform: translateX(calc(var(--gap1) * -1)) translateZ(-120px) rotateY(28deg) scale(0.9); }
+.aq-card[data-pos="2"] { z-index: 1; opacity: 0.6; transform: translateX(var(--gap2)) translateZ(-320px) rotateY(-42deg) scale(0.8); }
+.aq-card[data-pos="-2"] { z-index: 1; opacity: 0.6; transform: translateX(calc(var(--gap2) * -1)) translateZ(-320px) rotateY(42deg) scale(0.8); }
+.aq-card[data-pos="hidden"] { opacity: 0; pointer-events: none; transform: translateZ(-500px) scale(0.6); }
+.aq-card:not([data-pos="0"]) img { filter: grayscale(100%) brightness(0.95); }
+.aq-card:not([data-pos="0"]):hover img { filter: grayscale(30%); }
+
+/* Front card: gentle "Ken Burns" zoom and a tilt toward the mouse */
+.aq-tilt {
+  position: relative;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.aq-card[data-pos="0"] .aq-tilt {
+  transform: rotateX(calc(var(--my, 0) * -5deg)) rotateY(calc(var(--mx, 0) * 7deg));
+}
+.aq-card[data-pos="0"] img {
+  filter: none;
+  animation: aq-kenburns 7s ease-out both;
+}
+@keyframes aq-kenburns {
+  from { transform: scale(1.12); }
+  to { transform: scale(1); }
+}
+/* soft light that follows the mouse on the front card */
+.aq-shine {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  background: radial-gradient(
+    circle at calc(50% + var(--mx, 0) * 40%) calc(50% + var(--my, 0) * 40%),
+    rgb(255 255 255 / 0.28),
+    transparent 55%
+  );
+  pointer-events: none;
+}
+.aq-coverflow:hover .aq-card[data-pos="0"] .aq-shine { opacity: 1; }
+
+/* Background title drifts slightly against the mouse */
+.aq-backdrop {
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateX(calc(var(--mx, 0) * -24px));
+}
+
+/* Autoplay timer inside the active dot */
+.aq-progress { width: 100%; transform-origin: left; animation: aq-progress 5s linear both; }
+[dir="rtl"] .aq-progress { transform-origin: right; }
+@keyframes aq-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+/* Caption under the active photo, with a line on each side */
+.aq-caption { animation: aq-caption-in 0.6s ease-out both; }
+h3.aq-caption::before,
+h3.aq-caption::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  width: clamp(40px, 8vw, 100px);
+  height: 2px;
+  background: var(--color-navy-700);
+}
+h3.aq-caption::before { right: calc(100% + 16px); }
+h3.aq-caption::after { left: calc(100% + 16px); }
+@keyframes aq-caption-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---- "Inside Al-Qudra" photo rows: slow, seamless drift ---- */
+@keyframes aq-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(var(--aq-drift-end), 0, 0); }
+}
+.aq-marquee {
+  /* soft fade at both edges */
+  mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent);
+}
+.aq-marquee-track {
+  --aq-drift-end: -50%;
+  animation: aq-drift 140s linear infinite;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+.aq-marquee-track.aq-marquee-reverse {
+  animation-direction: reverse;
+  animation-duration: 170s;
+}
+[dir="rtl"] .aq-marquee-track {
+  --aq-drift-end: 50%;
+}
+.aq-marquee:hover .aq-marquee-track {
+  animation-play-state: paused;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-white font-sans text-ink antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    @apply bg-navy-700 text-white;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-sky;
+  }
+}
+
+/* Reusable building blocks (Tailwind v4 custom utilities). */
+@utility container-x {
+  @apply mx-auto w-full max-w-7xl px-5 sm:px-8;
+}
+@utility eyebrow {
+  @apply inline-flex items-center gap-2 text-xs font-bold tracking-[0.18em] text-navy-500 uppercase;
+  &::before {
+    content: "";
+    @apply h-px w-8 bg-current;
+  }
+  [dir="rtl"] & {
+    @apply text-sm tracking-normal;
+  }
+}
+@utility heading {
+  @apply text-3xl leading-[1.15] font-extrabold tracking-tight text-navy-900 sm:text-4xl lg:text-5xl;
+  [dir="rtl"] & {
+    @apply leading-[1.35] tracking-normal;
+  }
+}
+@utility lead {
+  @apply text-base leading-8 text-muted sm:text-lg;
+}
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-bold whitespace-nowrap transition-all duration-300 ease-out-expo;
+}
+@utility btn-primary {
+  @apply btn bg-navy-700 text-white shadow-lg shadow-navy-700/20 hover:-translate-y-0.5 hover:bg-navy-600 hover:shadow-xl hover:shadow-navy-700/25;
+}
+@utility btn-light {
+  @apply btn bg-white text-navy-800 hover:-translate-y-0.5 hover:bg-sky-soft;
+}
+@utility btn-ghost {
+  @apply btn border border-white/30 text-white backdrop-blur hover:border-white hover:bg-white/10;
+}
+@utility btn-outline {
+  @apply btn border border-navy-700/20 text-navy-800 hover:border-navy-700 hover:bg-navy-700 hover:text-white;
+}
+@utility card {
+  @apply rounded-3xl border border-line bg-white p-7 transition-all duration-500 ease-out-expo hover:-translate-y-1 hover:border-navy-700/15 hover:shadow-2xl hover:shadow-navy-900/[0.07];
+}
+@utility icon-tile {
+  @apply flex size-12 shrink-0 items-center justify-center rounded-2xl bg-sky-soft text-navy-700 transition-colors duration-300;
+}
+@utility grid-lines {
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.05) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+@utility field {
+  @apply w-full rounded-2xl border border-line bg-white px-4 py-3.5 text-[15px] text-ink transition outline-none placeholder:text-muted/70 focus:border-navy-500 focus:ring-4 focus:ring-navy-500/10;
+}
+
+/* Mirror directional arrows in Arabic. */
+[dir="rtl"] .flip-rtl {
+  transform: scaleX(-1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important; /* stop loops (photo strip) instead of spinning them */
+    transition-duration: 0.01ms !important;
+  }
+  /* No drifting: the photo rows become swipeable instead. */
+  .aq-marquee {
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    padding-inline: 1.25rem;
+    mask-image: none;
+  }
+  .aq-marquee-track {
+    animation: none !important;
+  }
+  .aq-marquee-track > * {
+    scroll-snap-align: start;
+  }
+  .aq-marquee-track > [aria-hidden="true"] {
+    display: none;
+  }
+}

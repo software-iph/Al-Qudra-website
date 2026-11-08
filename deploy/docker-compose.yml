@@ -1,0 +1,50 @@
+# ALQUDRA website + dashboard (alqudra-ec.com) - lives in /opt/alqudra on the VPS.
+# One Next.js app serves the public site AND the dashboard (/admin); PostgreSQL stores the content.
+# Reached only through Nginx Proxy Manager:
+#   https://www.alqudra-ec.com + https://alqudra-ec.com  ->  alqudra-web:3000
+# No "ports:" -> nothing is opened on the host; other sites on the VPS are untouched.
+name: alqudra
+
+services:
+  alqudra-web:
+    build: ./web                      # folder with the prebuilt app (see README)
+    image: alqudra-web
+    container_name: alqudra-web
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://${DB_USER}:${DB_PASSWORD}@alqudra-db:5432/${DB_NAME}
+    ports:
+      - "3008:3000"                    # temporary public test address http://102.203.203.160:3008
+    volumes:
+      - uploads:/app/uploads           # photos/videos uploaded from the dashboard
+    depends_on:
+      alqudra-db:
+        condition: service_healthy
+    networks: [proxy, internal]
+
+  alqudra-db:
+    image: postgres:18-alpine
+    container_name: alqudra-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [internal]
+
+volumes:
+  uploads:
+  db:
+
+networks:
+  proxy:
+    external: true                    # shared with Nginx Proxy Manager
+  internal:

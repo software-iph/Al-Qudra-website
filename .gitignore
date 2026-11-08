@@ -1,0 +1,11 @@
+# Old React/Laravel code and docs (reference only, from the Cloudtechly repos)
+/backend/
+/frontend/
+/docs/
+
+# Secrets and local files
+.env
+.env.*
+!.env.example
+*.pem
+uploads/
