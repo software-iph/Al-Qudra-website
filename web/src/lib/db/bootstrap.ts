@@ -1,9 +1,11 @@
 import path from "node:path";
 import bcrypt from "bcryptjs";
-import { count, sql } from "drizzle-orm";
+import { count, inArray, sql } from "drizzle-orm";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { db, schema } from "./index";
 import { LISTS, MEDIA, SERVICES, SETTINGS, TEXTS, TEXT_GROUPS } from "../seed-data";
+
+const OBSOLETE_TEXTS = ["careers.apply"];
 
 /**
  * Runs once when the server starts: applies database migrations, then adds any
@@ -35,6 +37,8 @@ async function seed() {
       target: schema.texts.key,
       set: { label: sql`excluded.label`, type: sql`excluded.type`, group: sql`excluded.group`, sort: sql`excluded.sort` },
     });
+  // Texts the website no longer uses.
+  await db.delete(schema.texts).where(inArray(schema.texts.key, OBSOLETE_TEXTS));
 
   await db
     .insert(schema.media)

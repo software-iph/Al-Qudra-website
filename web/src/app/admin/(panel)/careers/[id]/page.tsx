@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, ExternalLink, FileText, Save } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SubmitButton } from "@/components/admin/client";
@@ -9,7 +9,7 @@ import { db, schema } from "@/lib/db";
 import { saveCareer } from "../../../actions";
 
 const EMPLOYMENT = { full_time: "Full time", part_time: "Part time", contract: "Contract", internship: "Internship" };
-const LOCATION = { on_site: "On-site", remote: "Remote", hybrid: "Hybrid" };
+const LOCATION = { office: "Office", on_site: "On-site (project site)", hybrid: "Hybrid", remote: "Remote" };
 
 export default async function CareerEditPage({ params }: PageProps<"/admin/careers/[id]">) {
   await requireUser();
@@ -17,7 +17,7 @@ export default async function CareerEditPage({ params }: PageProps<"/admin/caree
   const isNew = id === "new";
   const [row] = isNew ? [] : await db.select().from(schema.careers).where(eq(schema.careers.id, Number(id)));
   if (!isNew && !row) notFound();
-  const job = row ?? { id: 0, titleEn: "", titleAr: "", descriptionEn: "", descriptionAr: "", employment: "full_time", location: "on_site", city: "Benghazi", active: true };
+  const job = row ?? { id: 0, titleEn: "", titleAr: "", descriptionEn: "", descriptionAr: "", employment: "full_time", location: "office", city: "Benghazi", applyMethod: "form", applyUrl: "", active: true };
 
   return (
     <>
@@ -64,7 +64,7 @@ export default async function CareerEditPage({ params }: PageProps<"/admin/caree
                 ))}
               </select>
             </Field>
-            <Field label="Work location">
+            <Field label="Work type">
               <select name="location" defaultValue={job.location} className={inputCls}>
                 {Object.entries(LOCATION).map(([v, l]) => (
                   <option key={v} value={v}>
@@ -79,6 +79,35 @@ export default async function CareerEditPage({ params }: PageProps<"/admin/caree
             <label className="flex items-center gap-2 pt-7 text-sm font-bold text-navy-900">
               <input type="checkbox" name="active" defaultChecked={job.active} className="size-4 accent-navy-700" /> Open (shown on the website)
             </label>
+          </div>
+        </Panel>
+        <Panel title="How do candidates apply?">
+          <div className="group grid gap-4">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="flex cursor-pointer gap-3 rounded-xl border border-line p-4 transition has-checked:border-navy-600 has-checked:bg-sky-soft/50">
+                <input type="radio" name="applyMethod" value="form" defaultChecked={job.applyMethod !== "link"} className="mt-1 size-4 accent-navy-700" />
+                <span>
+                  <span className="flex items-center gap-2 font-extrabold text-navy-900">
+                    <FileText className="size-4" /> Apply on the website
+                  </span>
+                  <span className="mt-1 block text-sm text-muted">Candidates fill a form and attach their CV. Applications arrive under Job applications.</span>
+                </span>
+              </label>
+              <label className="flex cursor-pointer gap-3 rounded-xl border border-line p-4 transition has-checked:border-navy-600 has-checked:bg-sky-soft/50">
+                <input type="radio" name="applyMethod" value="link" defaultChecked={job.applyMethod === "link"} className="mt-1 size-4 accent-navy-700" />
+                <span>
+                  <span className="flex items-center gap-2 font-extrabold text-navy-900">
+                    <ExternalLink className="size-4" /> External link
+                  </span>
+                  <span className="mt-1 block text-sm text-muted">The Apply button opens a link, e.g. a Google Form or LinkedIn job post.</span>
+                </span>
+              </label>
+            </div>
+            <div className="hidden group-has-[input[value=link]:checked]:block">
+              <Field label="Application link *" hint="Full address, starting with https://">
+                <input name="applyUrl" type="url" defaultValue={job.applyUrl} placeholder="https://forms.gle/..." dir="ltr" className={inputCls} />
+              </Field>
+            </div>
           </div>
         </Panel>
         <div className="flex justify-end">

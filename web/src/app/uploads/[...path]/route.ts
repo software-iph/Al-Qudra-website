@@ -20,7 +20,8 @@ export async function GET(request: Request, ctx: RouteContext<"/uploads/[...path
   const { path: parts } = await ctx.params;
   const file = path.resolve(UPLOAD_DIR, ...parts);
   const type = TYPES[path.extname(file).toLowerCase()];
-  if (!type || !file.startsWith(UPLOAD_DIR + path.sep)) return new Response("Not found", { status: 404 });
+  // CVs and other private files are only available through the dashboard.
+  if (!type || !file.startsWith(UPLOAD_DIR + path.sep) || parts[0] === "private") return new Response("Not found", { status: 404 });
 
   const info = await stat(file).catch(() => null);
   if (!info?.isFile()) return new Response("Not found", { status: 404 });

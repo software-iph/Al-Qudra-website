@@ -3,6 +3,7 @@
 import {
   AtSign,
   Briefcase,
+  FileText,
   Image as ImageIcon,
   Images,
   Inbox,
@@ -29,14 +30,15 @@ const NAV = [
   { href: "/admin/gallery", label: "Gallery", icon: Images },
   { href: "/admin/careers", label: "Job openings", icon: Briefcase },
   { section: "Inbox" },
-  { href: "/admin/messages", label: "Messages", icon: Inbox, badge: true },
+  { href: "/admin/messages", label: "Messages", icon: Inbox, badge: "messages" },
+  { href: "/admin/applications", label: "Job applications", icon: FileText, badge: "applications" },
   { href: "/admin/subscribers", label: "Subscribers", icon: AtSign },
   { section: "System" },
   { href: "/admin/settings", label: "Settings", icon: Settings },
   { href: "/admin/users", label: "Users & password", icon: UserCog },
 ] as const;
 
-export function Sidebar({ unread }: { unread: number }) {
+export function Sidebar({ unread }: { unread: { messages: number; applications: number } }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [lastPath, setLastPath] = useState(pathname);
@@ -89,8 +91,8 @@ export function Sidebar({ unread }: { unread: number }) {
               >
                 <item.icon className="size-[18px]" strokeWidth={1.8} />
                 <span className="flex-1">{item.label}</span>
-                {"badge" in item && unread > 0 && (
-                  <span className="rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white">{unread}</span>
+                {"badge" in item && unread[item.badge] > 0 && (
+                  <span className="rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white">{unread[item.badge]}</span>
                 )}
               </Link>
             ),

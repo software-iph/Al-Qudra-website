@@ -1,5 +1,5 @@
 import { count, desc, eq, isNull } from "drizzle-orm";
-import { ArrowRight, AtSign, Briefcase, Image as ImageIcon, Images, Inbox, Layers, Mail, Plus, Settings, Type } from "lucide-react";
+import { ArrowRight, AtSign, Briefcase, Image as ImageIcon, FileText, Images, Layers, Mail, Plus, Settings, Type } from "lucide-react";
 import Link from "next/link";
 import { Badge, Panel } from "@/components/admin/ui";
 import { requireUser } from "@/lib/auth";
@@ -8,9 +8,9 @@ import { db, schema } from "@/lib/db";
 export default async function DashboardPage() {
   const user = await requireUser();
   const value = (rows: { value: number }[]) => rows[0]?.value ?? 0;
-  const [unread, messages, subscribers, jobs, photos, services, latest] = await Promise.all([
+  const [unread, applications, subscribers, jobs, photos, services, latest] = await Promise.all([
     db.select({ value: count() }).from(schema.messages).where(isNull(schema.messages.readAt)).then(value),
-    db.select({ value: count() }).from(schema.messages).then(value),
+    db.select({ value: count() }).from(schema.applications).where(isNull(schema.applications.readAt)).then(value),
     db.select({ value: count() }).from(schema.subscribers).then(value),
     db.select({ value: count() }).from(schema.careers).where(eq(schema.careers.active, true)).then(value),
     db.select({ value: count() }).from(schema.gallery).where(eq(schema.gallery.active, true)).then(value),
@@ -26,7 +26,7 @@ export default async function DashboardPage() {
     { label: "Open jobs", value: jobs, icon: Briefcase, href: "/admin/careers", tone: "bg-emerald-50 text-emerald-700" },
     { label: "Gallery photos", value: photos, icon: Images, href: "/admin/gallery", tone: "bg-amber-50 text-amber-700" },
     { label: "Services", value: services, icon: Layers, href: "/admin/services", tone: "bg-indigo-50 text-indigo-700" },
-    { label: "All messages", value: messages, icon: Inbox, href: "/admin/messages", tone: "bg-slate-100 text-slate-700" },
+    { label: "New job applications", value: applications, icon: FileText, href: "/admin/applications", tone: "bg-slate-100 text-slate-700" },
   ];
   const quick = [
     { href: "/admin/texts", label: "Edit website texts (English / Arabic)", icon: Type },

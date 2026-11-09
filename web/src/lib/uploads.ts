@@ -51,3 +51,40 @@ export async function deleteUpload(src: string | null | undefined) {
   if (!target.startsWith(UPLOAD_DIR + path.sep)) return;
   await unlink(target).catch(() => undefined);
 }
+
+// ---------- CVs (private: never served publicly, only through the dashboard) ----------
+
+export const CV_DIR = path.join(UPLOAD_DIR, "private", "cv");
+const CV_MAX_MB = 10;
+
+/** Checks the file's first bytes, not just its name, so only real PDF / Word files are kept. */
+function cvType(bytes: Buffer, name: string): "pdf" | "docx" | "doc" | null {
+  const ext = path.extname(name).toLowerCase();
+  if (ext === ".pdf" && bytes.subarray(0, 5).toString("latin1") === "%PDF-") return "pdf";
+  if (ext === ".docx" && bytes[0] === 0x50 && bytes[1] === 0x4b) return "docx"; // zip container
+  if (ext === ".doc" && bytes.subarray(0, 4).toString("hex") === "d0cf11e0") return "doc";
+  return null;
+}
+
+/** Saves a CV and returns its stored file name, or null if it is not an allowed file. */
+export async function saveCv(file: File): Promise<string | null> {
+  if (file.size === 0 || file.size > CV_MAX_MB * 1024 * 1024) return null;
+  const bytes = Buffer.from(await file.arrayBuffer());
+  const type = cvType(bytes, file.name);
+  if (!type) return null;
+  const name = `${Date.now()}-${randomBytes(8).toString("hex")}.${type}`;
+  await mkdir(CV_DIR, { recursive: true });
+  await writeFile(path.join(CV_DIR, name), bytes);
+  return name;
+}
+
+/** Full path of a stored CV, or null for anything outside the CV folder. */
+export function cvPath(fileName: string) {
+  const target = path.resolve(CV_DIR, fileName);
+  return target.startsWith(CV_DIR + path.sep) ? target : null;
+}
+
+export async function deleteCv(fileName: string) {
+  const target = cvPath(fileName);
+  if (target) await unlink(target).catch(() => undefined);
+}

@@ -7,7 +7,7 @@ import { z } from "zod";
 import { createSession, destroySession, requireUser } from "@/lib/auth";
 import { invalidateContent } from "@/lib/content";
 import { db, schema } from "@/lib/db";
-import { deleteUpload, isFile, saveUpload, UploadError } from "@/lib/uploads";
+import { deleteCv, deleteUpload, isFile, saveUpload, UploadError } from "@/lib/uploads";
 
 // ---------- helpers ----------
 
@@ -196,7 +196,7 @@ export async function deleteGalleryItem(fd: FormData) {
 // ---------- careers ----------
 
 const EMPLOYMENT = ["full_time", "part_time", "contract", "internship"];
-const LOCATION = ["on_site", "remote", "hybrid"];
+const LOCATION = ["office", "on_site", "hybrid", "remote"];
 
 export async function saveCareer(fd: FormData) {
   await requireUser();
@@ -208,11 +208,16 @@ export async function saveCareer(fd: FormData) {
     descriptionEn: str(fd, "descriptionEn"),
     descriptionAr: str(fd, "descriptionAr"),
     employment: EMPLOYMENT.includes(str(fd, "employment")) ? str(fd, "employment") : "full_time",
-    location: LOCATION.includes(str(fd, "location")) ? str(fd, "location") : "on_site",
+    location: LOCATION.includes(str(fd, "location")) ? str(fd, "location") : "office",
     city: str(fd, "city"),
+    applyMethod: str(fd, "applyMethod") === "link" ? "link" : "form",
+    applyUrl: str(fd, "applyUrl"),
     active: bool(fd, "active"),
   };
   if (!values.titleEn) fail(back, "The English job title is required.");
+  if (values.applyMethod === "link" && !/^https?:\/\/\S+\.\S+/i.test(values.applyUrl)) {
+    fail(back, "Add the full application link (starting with https://), or choose \"Apply on the website\".");
+  }
   if (id) await db.update(schema.careers).set(values).where(eq(schema.careers.id, id));
   else await db.insert(schema.careers).values(values);
   done("/admin/careers", "Job opening saved.");
@@ -222,6 +227,21 @@ export async function deleteCareer(fd: FormData) {
   await requireUser();
   await db.delete(schema.careers).where(eq(schema.careers.id, num(fd, "id")));
   done("/admin/careers", "Job opening deleted.");
+}
+
+// ---------- job applications ----------
+
+export async function deleteApplication(fd: FormData) {
+  await requireUser();
+  const [row] = await db.delete(schema.applications).where(eq(schema.applications.id, num(fd, "id"))).returning();
+  if (row) await deleteCv(row.cvFile);
+  done("/admin/applications", "Application deleted.");
+}
+
+export async function markApplicationUnread(fd: FormData) {
+  await requireUser();
+  await db.update(schema.applications).set({ readAt: null }).where(eq(schema.applications.id, num(fd, "id")));
+  done("/admin/applications", "Marked as unread.");
 }
 
 // ---------- inbox ----------

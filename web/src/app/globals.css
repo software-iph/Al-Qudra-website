@@ -265,3 +265,22 @@ h3.aq-caption::after { left: calc(100% + 16px); }
     display: none;
   }
 }
+
+/* ---------- Application dialog ---------- */
+.aq-dialog[open] {
+  animation: aq-dialog-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.aq-dialog[open]::backdrop {
+  animation: aq-fade-in 0.3s ease;
+}
+@keyframes aq-dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+}
+@keyframes aq-fade-in {
+  from {
+    opacity: 0;
+  }
+}

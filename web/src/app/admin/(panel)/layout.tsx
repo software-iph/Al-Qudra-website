@@ -9,11 +9,14 @@ import { Sidebar } from "./Sidebar";
 
 export default async function PanelLayout({ children }: LayoutProps<"/admin">) {
   const user = await requireUser();
-  const [{ value: unread }] = await db.select({ value: count() }).from(schema.messages).where(isNull(schema.messages.readAt));
+  const [[{ value: messages }], [{ value: applications }]] = await Promise.all([
+    db.select({ value: count() }).from(schema.messages).where(isNull(schema.messages.readAt)),
+    db.select({ value: count() }).from(schema.applications).where(isNull(schema.applications.readAt)),
+  ]);
 
   return (
     <div className="min-h-screen lg:ps-72">
-      <Sidebar unread={unread} />
+      <Sidebar unread={{ messages, applications }} />
       <header className="sticky top-0 z-30 flex h-16 items-center justify-end gap-3 border-b border-line bg-white/85 px-5 backdrop-blur-xl sm:px-8">
         <a href="/ar" target="_blank" className="inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-bold text-navy-700 ring-1 ring-line transition hover:bg-paper">
           <ExternalLink className="size-4" /> View website

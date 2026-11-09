@@ -87,9 +87,28 @@ export const careers = pgTable("careers", {
   descriptionEn: text("description_en").notNull().default(""),
   descriptionAr: text("description_ar").notNull().default(""),
   employment: varchar("employment", { length: 20 }).notNull().default("full_time"), // full_time | part_time | contract | internship
-  location: varchar("location", { length: 20 }).notNull().default("on_site"), // on_site | remote | hybrid
+  location: varchar("location", { length: 20 }).notNull().default("office"), // office | on_site | hybrid | remote
   city: varchar("city", { length: 100 }).notNull().default(""),
+  applyMethod: varchar("apply_method", { length: 10 }).notNull().default("form"), // form (on this website) | link
+  applyUrl: text("apply_url").notNull().default(""), // used when applyMethod = link
   active: boolean("active").notNull().default(true),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+/** Job applications sent through the form on the Careers page. CV files are private (dashboard only). */
+export const applications = pgTable("applications", {
+  id: serial("id").primaryKey(),
+  careerId: integer("career_id").references(() => careers.id, { onDelete: "set null" }),
+  jobTitle: varchar("job_title", { length: 200 }).notNull().default(""), // kept if the job is deleted; "" = open application
+  name: varchar("name", { length: 150 }).notNull(),
+  email: varchar("email", { length: 200 }).notNull(),
+  phone: varchar("phone", { length: 50 }).notNull(),
+  city: varchar("city", { length: 100 }).notNull().default(""),
+  link: varchar("link", { length: 300 }).notNull().default(""), // LinkedIn / portfolio
+  message: text("message").notNull().default(""),
+  cvFile: text("cv_file").notNull(), // file name inside uploads/private/cv
+  cvName: varchar("cv_name", { length: 255 }).notNull(), // original file name
+  readAt: timestamp("read_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

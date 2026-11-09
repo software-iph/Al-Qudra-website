@@ -2,9 +2,11 @@
 
 import { CircleAlert, CircleCheck, Upload, X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import { useFormStatus } from "react-dom";
 import { btn } from "./ui";
+
+const noop = () => () => undefined;
 
 /** Submit button that shows a pending state while the Server Action runs. */
 export function SubmitButton({ children, className = btn.primary, pendingText = "Saving..." }: { children: ReactNode; className?: string; pendingText?: string }) {
@@ -54,7 +56,10 @@ export function Toast() {
     return () => clearTimeout(timer);
   }, [text, params, pathname, router]);
 
-  if (!text || dismissed === text) return null;
+  // Browser-only: the server and the first client render can see different URLs after a redirect.
+  const mounted = useSyncExternalStore(noop, () => true, () => false);
+
+  if (!mounted || !text || dismissed === text) return null;
   return (
     <div className="fixed right-6 bottom-6 z-50 flex max-w-sm items-start gap-3 rounded-2xl bg-navy-900 px-5 py-4 text-sm font-bold text-white shadow-2xl" role="status">
       {error ? <CircleAlert className="size-5 shrink-0 text-red-300" /> : <CircleCheck className="size-5 shrink-0 text-emerald-300" />}

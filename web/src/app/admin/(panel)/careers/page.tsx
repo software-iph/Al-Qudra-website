@@ -1,5 +1,5 @@
-import { desc } from "drizzle-orm";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { count, desc } from "drizzle-orm";
+import { ExternalLink, FileText, Pencil, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { ConfirmButton } from "@/components/admin/client";
 import { Badge, btn, Empty, PageHeader } from "@/components/admin/ui";
@@ -10,17 +10,21 @@ import { deleteCareer } from "../../actions";
 export const metadata = { title: "Job openings" };
 
 const EMPLOYMENT_LABELS: Record<string, string> = { full_time: "Full time", part_time: "Part time", contract: "Contract", internship: "Internship" };
-const LOCATION_LABELS: Record<string, string> = { on_site: "On-site", remote: "Remote", hybrid: "Hybrid" };
+const LOCATION_LABELS: Record<string, string> = { office: "Office", on_site: "On-site", hybrid: "Hybrid", remote: "Remote" };
 
 export default async function CareersAdminPage() {
   await requireUser();
-  const rows = await db.select().from(schema.careers).orderBy(desc(schema.careers.createdAt));
+  const [rows, counts] = await Promise.all([
+    db.select().from(schema.careers).orderBy(desc(schema.careers.createdAt)),
+    db.select({ careerId: schema.applications.careerId, value: count() }).from(schema.applications).groupBy(schema.applications.careerId),
+  ]);
+  const applied = new Map(counts.map((r) => [r.careerId, r.value]));
 
   return (
     <>
       <PageHeader
         title="Job openings"
-        text="Positions listed on the Careers page. Applicants send their CV to the careers email set in Settings."
+        text="Positions listed on the Careers page. Each job takes applications on the website (with CV upload) or through an external link."
         actions={
           <Link href="/admin/careers/new" className={btn.primary}>
             <Plus className="size-4" /> Post a job
@@ -43,6 +47,7 @@ export default async function CareersAdminPage() {
               <tr>
                 <th className="px-5 py-3 text-start">Title</th>
                 <th className="px-5 py-3 text-start">Type</th>
+                <th className="px-5 py-3 text-start">Applications</th>
                 <th className="px-5 py-3 text-start">Posted</th>
                 <th className="px-5 py-3 text-start">Status</th>
                 <th className="px-5 py-3" />
@@ -60,6 +65,17 @@ export default async function CareersAdminPage() {
                   <td className="px-5 py-4 text-muted">
                     {EMPLOYMENT_LABELS[job.employment]} · {LOCATION_LABELS[job.location]}
                     {job.city && ` · ${job.city}`}
+                  </td>
+                  <td className="px-5 py-4">
+                    {job.applyMethod === "link" ? (
+                      <a href={job.applyUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-muted hover:text-navy-700">
+                        <ExternalLink className="size-4" /> External link
+                      </a>
+                    ) : (
+                      <Link href={`/admin/applications?job=${job.id}`} className="inline-flex items-center gap-1.5 font-bold text-navy-700 hover:underline">
+                        <FileText className="size-4" /> {applied.get(job.id) ?? 0}
+                      </Link>
+                    )}
                   </td>
                   <td className="px-5 py-4 text-muted">{job.createdAt.toLocaleDateString("en-GB")}</td>
                   <td className="px-5 py-4">
