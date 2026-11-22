@@ -17,12 +17,14 @@ export function MotionProvider({ children }: { children: ReactNode }) {
 export function Reveal({
   children,
   delay = 0,
+  duration = 0.9,
   className,
   y = 28,
   onMount = false,
 }: {
   children: ReactNode;
   delay?: number;
+  duration?: number;
   className?: string;
   y?: number;
   /** Animate right away (above-the-fold content) instead of on scroll. */
@@ -34,7 +36,7 @@ export function Reveal({
       className={className}
       initial={{ opacity: 0, y }}
       {...(onMount ? { animate: shown } : { whileInView: shown, viewport: { once: true, margin: "-60px" } })}
-      transition={{ duration: 0.9, delay, ease: EASE }}
+      transition={{ duration, delay, ease: EASE }}
     >
       {children}
     </motion.div>
@@ -51,6 +53,7 @@ export function SplitText({
   className,
   delay = 0,
   stagger = 0.06,
+  duration = 0.9,
   onMount = false,
 }: {
   text: string;
@@ -58,6 +61,7 @@ export function SplitText({
   className?: string;
   delay?: number;
   stagger?: number;
+  duration?: number;
   onMount?: boolean;
 }) {
   const words = text.split(/\s+/).filter(Boolean);
@@ -71,7 +75,7 @@ export function SplitText({
             <motion.span
               className="inline-block"
               variants={{ hide: { y: "115%", rotate: 4 }, show: { y: "0%", rotate: 0 } }}
-              transition={{ duration: 0.9, ease: EASE }}
+              transition={{ duration, ease: EASE }}
             >
               {word}
             </motion.span>
@@ -131,13 +135,13 @@ export function HeroParallax({ background, children, className }: { background: 
 }
 
 /** Small animated "scroll" hint at the bottom of the home hero. */
-export function ScrollCue({ label }: { label: string }) {
+export function ScrollCue({ label, delay = 1.6 }: { label: string; delay?: number }) {
   return (
     <motion.div
       className="pointer-events-none flex flex-col items-center gap-3 text-[11px] font-bold tracking-[0.3em] text-white/50 uppercase"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ delay: 1.6, duration: 1 }}
+      transition={{ delay, duration: 1.2 }}
       aria-hidden
     >
       <span className="relative h-12 w-px overflow-hidden bg-white/15">
@@ -152,26 +156,43 @@ export function ScrollCue({ label }: { label: string }) {
   );
 }
 
-/** Counts up from 0 to `value` the first time it scrolls into view. */
-export function CountUp({ value, suffix = "+", className }: { value: number; suffix?: string; className?: string }) {
+/** Counts up from 0 to `value` whenever it scrolls into view. */
+export function CountUp({
+  value,
+  suffix = "+",
+  className,
+  suffixClassName,
+  duration = 2,
+}: {
+  value: number | string;
+  suffix?: string;
+  className?: string;
+  suffixClassName?: string;
+  duration?: number;
+}) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-40px" });
+  const inView = useInView(ref, { once: false, margin: "0px 0px -80px 0px" });
   const [display, setDisplay] = useState(0);
 
+  const target = typeof value === "number" ? value : parseInt(String(value).replace(/[^\d]/g, ""), 10) || 0;
+
   useEffect(() => {
-    if (!inView) return;
-    const controls = animate(0, value, {
-      duration: reducedMotion() ? 0 : 2.2,
-      ease: EASE,
+    if (!inView) {
+      setDisplay(0);
+      return;
+    }
+    const controls = animate(0, target, {
+      duration: duration,
+      ease: [0.16, 1, 0.3, 1],
       onUpdate: (v) => setDisplay(Math.round(v)),
     });
     return () => controls.stop();
-  }, [inView, value]);
+  }, [inView, target, duration]);
 
   return (
     <span ref={ref} className={className} dir="ltr">
-      {display.toLocaleString("en-US")}
-      {suffix}
+      <span className="tabular-nums">{display.toLocaleString("en-US")}</span>
+      {suffix && <span className={suffixClassName ?? ""}>{suffix}</span>}
     </span>
   );
 }

@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import type { Content } from "@/lib/content";
 import { Icon } from "./Icon";
-import { HeroParallax, Reveal, SplitText } from "./Motion";
+import { CountUp, HeroParallax, Reveal, SplitText } from "./Motion";
 
 /** Dark photo header used at the top of every inner page. */
 export function PageHero({
@@ -144,6 +144,71 @@ export function CardGrid({ items, columns = 4 }: { items: ReturnType<Content["it
         </Reveal>
       ))}
     </div>
+  );
+}
+
+/** Modern animated stats showcase. */
+export function StatsShowcase({ items }: { items: ReturnType<Content["items"]> }) {
+  if (!items || items.length === 0) return null;
+
+  return (
+    <section className="relative isolate py-20 sm:py-28 overflow-hidden bg-gradient-to-b from-transparent via-slate-50/70 to-transparent">
+      {/* Ambient background glow */}
+      <div className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center" aria-hidden>
+        <div className="h-72 w-[700px] rounded-full bg-gradient-to-r from-sky-soft/50 via-sky/15 to-transparent blur-3xl opacity-80" />
+      </div>
+
+      <div className="container-x">
+        <div className="grid gap-6 md:grid-cols-3 lg:gap-8">
+          {items.map((s, i) => (
+            <Reveal
+              key={s.id}
+              delay={i * 0.15}
+              y={35}
+              className="group relative flex flex-col justify-between overflow-hidden rounded-[2.25rem] border border-slate-200/80 bg-white/90 p-8 sm:p-10 shadow-[0_20px_50px_-15px_rgba(7,19,34,0.06)] backdrop-blur-xl transition-all duration-700 ease-out-expo hover:-translate-y-2.5 hover:border-sky/50 hover:shadow-[0_30px_70px_-15px_rgba(7,19,34,0.14)]"
+            >
+              {/* Top Bar: Icon + Modern Badge */}
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex size-14 sm:size-16 items-center justify-center rounded-2xl bg-gradient-to-br from-paper to-sky-soft/70 text-navy-800 shadow-sm border border-white transition-all duration-500 ease-out-expo group-hover:scale-110 group-hover:bg-gradient-to-br group-hover:from-navy-800 group-hover:to-navy-950 group-hover:text-sky group-hover:shadow-lg">
+                  <Icon name={s.icon} className="size-7 sm:size-8" />
+                </div>
+                <div className="flex items-center gap-2 rounded-full border border-slate-200/70 bg-paper/90 px-3.5 py-1.5 text-xs font-black tracking-widest text-navy-600 transition-colors group-hover:border-sky/40 group-hover:bg-sky-soft/40 group-hover:text-navy-900" dir="ltr">
+                  <span className="relative flex size-2">
+                    <span className="absolute inline-flex size-full animate-ping rounded-full bg-sky opacity-75" />
+                    <span className="relative inline-flex size-2 rounded-full bg-sky" />
+                  </span>
+                  0{i + 1}
+                </div>
+              </div>
+
+              {/* Number and Label */}
+              <div className="mt-8 sm:mt-10">
+                <div className="whitespace-nowrap" dir="ltr">
+                  <CountUp
+                    value={s.body}
+                    suffix="+"
+                    suffixClassName="text-3xl sm:text-4xl lg:text-5xl font-black text-sky ms-1 inline-block"
+                    className="text-4xl sm:text-5xl lg:text-6xl font-black text-navy-950 tracking-tight"
+                  />
+                </div>
+                <p className="mt-3 text-base sm:text-lg font-extrabold text-navy-800 leading-snug">
+                  {s.title}
+                </p>
+              </div>
+
+              {/* Animated Progress Indicator Line */}
+              <div className="mt-8 h-1.5 w-12 rounded-full bg-slate-100 transition-all duration-700 ease-out-expo group-hover:w-full group-hover:bg-gradient-to-r group-hover:from-sky group-hover:to-navy-700" />
+
+              {/* Ambient Spotlight inside card */}
+              <div
+                className="pointer-events-none absolute -bottom-16 -end-16 size-48 rounded-full bg-sky/15 blur-3xl transition-all duration-700 group-hover:scale-150 group-hover:bg-sky/25"
+                aria-hidden
+              />
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 

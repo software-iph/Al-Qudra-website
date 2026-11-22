@@ -40,7 +40,6 @@ export default async function SiteLayout({ children, params }: LayoutProps<"/[la
   const nav = [
     { href: `/${lang}`, label: c.t("nav.home") },
     { href: `/${lang}/about`, label: c.t("nav.about") },
-    { href: `/${lang}/services`, label: c.t("nav.services") },
     { href: `/${lang}/careers`, label: c.t("nav.careers") },
     { href: `/${lang}/gallery`, label: c.t("nav.gallery") },
     { href: `/${lang}/contact`, label: c.t("nav.contact") },
