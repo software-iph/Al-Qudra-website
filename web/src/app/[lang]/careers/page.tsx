@@ -130,7 +130,7 @@ export default async function CareersPage({ params }: PageProps<"/[lang]/careers
 
       <section className="bg-paper py-24 sm:py-32">
         <div className="container-x">
-          <SectionHeading center eyebrow={c.t("about.values_title")} title={c.t("about.values_title")} text={c.t("about.values_text")} />
+          <SectionHeading center title={c.t("about.values_title")} text={c.t("about.values_text")} />
           <div className="mt-14">
             <CardGrid items={c.items("values").slice(0, 4)} />
           </div>

@@ -16,13 +16,11 @@ export function GalleryMarquee({ c }: { c: Content }) {
 
       <div className="container-x">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <p className="eyebrow justify-center">{c.t("home.gallery_eyebrow")}</p>
-          <h2 className="heading mt-4">{c.t("home.gallery_title")}</h2>
-          <p className="lead mt-5">{c.t("home.gallery_text")}</p>
+          <h2 className="heading">{c.t("home.gallery_title")}</h2>
         </Reveal>
       </div>
 
-      <Reveal delay={0.1} className="mt-20 sm:mt-28">
+      <Reveal delay={0.1} className="mt-14 sm:mt-20">
         <Coverflow
           slides={photos}
           backdrop={c.t("home.gallery_eyebrow")}

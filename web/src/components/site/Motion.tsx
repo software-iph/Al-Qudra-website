@@ -1,7 +1,7 @@
 "use client";
 
 import { animate, motion, MotionConfig, useInView, useScroll, useTransform } from "motion/react";
-import { useEffect, useRef, useState, type ElementType, type ReactNode } from "react";
+import { useEffect, useRef, type ElementType, type ReactNode } from "react";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
@@ -87,26 +87,67 @@ export function SplitText({
   );
 }
 
-/** Photo revealed by a curtain wipe, with a slight zoom settling in. */
-export function RevealImage({ src, alt = "", className = "", imgClassName = "", delay = 0 }: { src: string; alt?: string; className?: string; imgClassName?: string; delay?: number }) {
+/**
+ * The site's signature photo treatment: a curtain wipe opens the frame, then the
+ * photo keeps drifting slowly inside it as the page scrolls (like a camera
+ * panning across a site). Reduced motion: the photo simply appears.
+ */
+export function RevealImage({
+  src,
+  alt = "",
+  className = "",
+  imgClassName = "",
+  delay = 0,
+  drift = 8,
+}: {
+  src: string;
+  alt?: string;
+  className?: string;
+  imgClassName?: string;
+  delay?: number;
+  /** How far (in %) the photo travels inside its frame while scrolling. 0 = still. */
+  drift?: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const reduce = useRef(false);
+  useEffect(() => {
+    reduce.current = reducedMotion();
+  }, []);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  // Same markup on server and client; the drift is simply switched off for reduced motion.
+  const y = useTransform(scrollYProgress, (v) => (reduce.current ? "0%" : `${(v * 2 - 1) * drift}%`));
+  const still = drift === 0;
+  // Watch the outer frame (never clipped): a fully clipped element counts as invisible to the browser.
+  const shown = useInView(ref, { once: true, margin: "-80px" });
+  const state = shown ? "show" : "hide";
+
   return (
-    <motion.div
-      className={`overflow-hidden ${className}`}
-      initial={{ clipPath: "inset(0 0 100% 0)" }}
-      whileInView={{ clipPath: "inset(0 0 0% 0)" }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 1.2, delay, ease: EASE }}
+    <div
+      ref={ref}
+      // Positioned frames (absolute/sticky from the caller) already contain the photo layer.
+      className={`${/\b(absolute|fixed|sticky)\b/.test(className) ? "" : "relative "}overflow-hidden ${className}`}
     >
-      <motion.img
-        src={src}
-        alt={alt}
-        className={`size-full object-cover ${imgClassName}`}
-        initial={{ scale: 1.25 }}
-        whileInView={{ scale: 1 }}
-        viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 1.6, delay, ease: EASE }}
-      />
-    </motion.div>
+      <motion.div
+        className="absolute inset-0"
+        initial="hide"
+        animate={state}
+        variants={{ hide: { clipPath: "inset(0 0 100% 0)" }, show: { clipPath: "inset(0 0 0% 0)" } }}
+        transition={{ duration: 1.2, delay, ease: EASE }}
+      >
+        {/* Oversized so the drift never shows an edge. */}
+        <motion.div className={still ? "absolute inset-0" : "absolute inset-x-0 -top-[10%] h-[120%]"} style={still ? undefined : { y }}>
+          <motion.img
+            src={src}
+            alt={alt}
+            className={`size-full object-cover ${imgClassName}`}
+            initial="hide"
+            animate={state}
+            variants={{ hide: { scale: 1.2, filter: "blur(6px)" }, show: { scale: 1, filter: "blur(0px)" } }}
+            transition={{ duration: 1.6, delay, ease: EASE }}
+          />
+        </motion.div>
+      </motion.div>
+    </div>
   );
 }
 
@@ -171,27 +212,31 @@ export function CountUp({
   duration?: number;
 }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: false, margin: "0px 0px -80px 0px" });
-  const [display, setDisplay] = useState(0);
+  const number = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, margin: "0px 0px -80px 0px" });
 
   const target = typeof value === "number" ? value : parseInt(String(value).replace(/[^\d]/g, ""), 10) || 0;
+  const format = (n: number) => Math.round(n).toLocaleString("en-US");
 
+  // The real number is in the HTML (search engines, no-JS, reduced motion);
+  // when it scrolls into view it counts up, written straight to the DOM (no re-renders).
   useEffect(() => {
-    if (!inView) {
-      setDisplay(0);
-      return;
-    }
+    if (!inView || reducedMotion()) return;
     const controls = animate(0, target, {
-      duration: duration,
-      ease: [0.16, 1, 0.3, 1],
-      onUpdate: (v) => setDisplay(Math.round(v)),
+      duration,
+      ease: EASE,
+      onUpdate: (v) => {
+        if (number.current) number.current.textContent = format(v);
+      },
     });
     return () => controls.stop();
   }, [inView, target, duration]);
 
   return (
     <span ref={ref} className={className} dir="ltr">
-      <span className="tabular-nums">{display.toLocaleString("en-US")}</span>
+      <span ref={number} className="tabular-nums">
+        {format(target)}
+      </span>
       {suffix && <span className={suffixClassName ?? ""}>{suffix}</span>}
     </span>
   );
