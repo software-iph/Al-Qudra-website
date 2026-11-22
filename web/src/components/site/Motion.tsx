@@ -213,15 +213,19 @@ export function CountUp({
 }) {
   const ref = useRef<HTMLSpanElement>(null);
   const number = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "0px 0px -80px 0px" });
+  const inView = useInView(ref, { once: false, margin: "0px 0px -80px 0px" });
 
   const target = typeof value === "number" ? value : parseInt(String(value).replace(/[^\d]/g, ""), 10) || 0;
   const format = (n: number) => Math.round(n).toLocaleString("en-US");
 
-  // The real number is in the HTML (search engines, no-JS, reduced motion);
-  // when it scrolls into view it counts up, written straight to the DOM (no re-renders).
+  // The real number is in the HTML (search engines, no-JS). Each time the number
+  // scrolls into view it counts up from 0, written straight to the DOM (no re-renders).
+  // Counting only changes digits (nothing moves), so it runs for reduced-motion visitors too.
   useEffect(() => {
-    if (!inView || reducedMotion()) return;
+    if (!inView) {
+      if (number.current) number.current.textContent = "0";
+      return;
+    }
     const controls = animate(0, target, {
       duration,
       ease: EASE,
