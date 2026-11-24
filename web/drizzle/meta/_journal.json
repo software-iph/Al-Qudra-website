@@ -15,6 +15,13 @@
       "when": 1794176197881,
       "tag": "0001_careers_apply",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795563323278,
+      "tag": "0002_brand_name",
+      "breakpoints": true
     }
   ]
 }

@@ -61,14 +61,12 @@ export default async function CareersPage({ params }: PageProps<"/[lang]/careers
         <div className="container-x">
           <SectionHeading title={c.t("careers.openings_title")} />
 
-          <div className="mt-12 grid gap-5">
+          <div className="mt-12 border-t border-line">
             {jobs.length === 0 && (
               <Reveal>
-                <div className="flex flex-col items-start gap-6 rounded-3xl border border-dashed border-navy-700/20 bg-paper p-10 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-col items-start gap-6 border-b border-line py-10 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-5">
-                    <div className="icon-tile size-14">
-                      <Briefcase className="size-7" strokeWidth={1.5} />
-                    </div>
+                    <Briefcase className="size-8 shrink-0 text-navy-700" strokeWidth={1.25} />
                     <p className="max-w-xl text-lg leading-8 text-muted">{c.t("careers.empty")}</p>
                   </div>
                   {openApplication("primary")}
@@ -80,20 +78,22 @@ export default async function CareersPage({ params }: PageProps<"/[lang]/careers
               const title = ar && job.titleAr ? job.titleAr : job.titleEn;
               const description = ar && job.descriptionAr ? job.descriptionAr : job.descriptionEn;
               return (
-                <Reveal key={job.id} delay={Math.min(i, 4) * 0.05}>
-                  <article className="card flex flex-col gap-6 sm:p-9 lg:flex-row lg:items-center lg:justify-between">
+                <Reveal key={job.id} delay={Math.min(i, 5) * 0.06}>
+                  <article className="flex flex-col gap-6 border-b border-line py-10 lg:flex-row lg:items-center lg:justify-between">
                     <div className="max-w-3xl">
-                      <h3 className="text-2xl font-extrabold text-navy-900">{title}</h3>
-                      <div className="mt-4 flex flex-wrap gap-2 text-sm font-bold">
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-soft px-3 py-1.5 text-navy-700">
-                          <Clock className="size-4" /> {c.t(`careers.${job.employment}`)}
+                      <h3 className="text-2xl font-bold text-ink sm:text-3xl" style={{ fontStretch: "112%" }}>
+                        {title}
+                      </h3>
+                      <div className="label-mono mt-4 flex flex-wrap gap-x-6 gap-y-2 text-concrete">
+                        <span className="inline-flex items-center gap-1.5">
+                          <Clock className="size-4 text-navy-700" strokeWidth={1.25} /> {c.t(`careers.${job.employment}`)}
                         </span>
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-paper px-3 py-1.5 text-navy-800">
+                        <span className="inline-flex items-center gap-1.5">
                           <LocationIcon location={job.location} /> {c.t(`careers.${job.location}`)}
                         </span>
                         {job.city && (
-                          <span className="inline-flex items-center gap-1.5 rounded-full bg-paper px-3 py-1.5 text-navy-800">
-                            <MapPin className="size-4" /> {job.city}
+                          <span className="inline-flex items-center gap-1.5">
+                            <MapPin className="size-4 text-navy-700" strokeWidth={1.25} /> {job.city}
                           </span>
                         )}
                       </div>
@@ -118,7 +118,7 @@ export default async function CareersPage({ params }: PageProps<"/[lang]/careers
             {email && (
               <p className="text-muted">
                 {c.t("careers.send_cv")}{" "}
-                <a href={`mailto:${email}`} className="font-bold text-navy-700 underline underline-offset-4" dir="ltr">
+                <a href={`mailto:${email}`} className="font-semibold text-navy-700 underline decoration-line underline-offset-4 transition-colors duration-[120ms] hover:decoration-navy-700" dir="ltr">
                   <Mail className="me-1 inline size-4" />
                   {email}
                 </a>
@@ -128,9 +128,9 @@ export default async function CareersPage({ params }: PageProps<"/[lang]/careers
         </div>
       </section>
 
-      <section className="bg-paper py-24 sm:py-32">
+      <section className="border-t border-line bg-limestone/50 py-24 sm:py-32">
         <div className="container-x">
-          <SectionHeading center title={c.t("about.values_title")} text={c.t("about.values_text")} />
+          <SectionHeading title={c.t("about.values_title")} />
           <div className="mt-14">
             <CardGrid items={c.items("values").slice(0, 4)} />
           </div>
@@ -142,5 +142,5 @@ export default async function CareersPage({ params }: PageProps<"/[lang]/careers
 
 function LocationIcon({ location }: { location: string }) {
   const Icon = location === "on_site" ? HardHat : location === "hybrid" ? Shuffle : location === "remote" ? Wifi : Building2;
-  return <Icon className="size-4" />;
+  return <Icon className="size-4 text-navy-700" strokeWidth={1.25} />;
 }

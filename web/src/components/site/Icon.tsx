@@ -52,7 +52,8 @@ export const ICONS: Record<string, LucideIcon> = {
 
 export const ICON_NAMES = Object.keys(ICONS);
 
-export function Icon({ name, className }: { name: string; className?: string }) {
+/** Line icons drawn like a technical sheet: light stroke, one colour, never filled. */
+export function Icon({ name, className, strokeWidth = 1.25 }: { name: string; className?: string; strokeWidth?: number }) {
   const Cmp = ICONS[name] ?? BadgeCheck;
-  return <Cmp className={className} strokeWidth={1.6} aria-hidden />;
+  return <Cmp className={className} strokeWidth={strokeWidth} aria-hidden />;
 }

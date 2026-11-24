@@ -69,7 +69,7 @@ export function Sidebar({ unread }: { unread: { messages: number; applications: 
         <div className="flex h-16 items-center justify-between border-b border-white/10 px-6">
           <Link href="/admin">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/brand/logo-white.png" alt="Alqudra" className="h-8 w-auto" />
+            <img src="/brand/logo-paper.png" alt="Alqudra" className="h-8 w-auto" />
           </Link>
           <button type="button" onClick={() => setOpen(false)} className="text-white/60 lg:hidden" aria-label="Close menu">
             <X className="size-5" />

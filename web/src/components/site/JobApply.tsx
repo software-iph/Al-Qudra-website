@@ -41,19 +41,19 @@ export function JobApply({
       <dialog
         ref={dialog}
         aria-labelledby={`apply-${jobId}`}
-        className="aq-dialog m-auto max-h-[92dvh] w-[min(680px,calc(100%-1.5rem))] overflow-y-auto rounded-3xl bg-white p-0 text-ink shadow-2xl backdrop:bg-navy-950/60 backdrop:backdrop-blur-sm"
+        className="aq-dialog m-auto max-h-[92dvh] w-[min(680px,calc(100%-1.5rem))] overflow-y-auto rounded-[2px] bg-paper p-0 text-ink backdrop:bg-navy-900/70"
         onClick={(e) => {
           if (e.target === e.currentTarget) close(); // click on the dimmed background
         }}
       >
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-line bg-white/95 px-6 py-5 backdrop-blur sm:px-8">
+        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-line bg-paper px-6 py-5 sm:px-8">
           <div>
-            <p className="text-sm font-bold text-navy-600">{heading}</p>
-            <h2 id={`apply-${jobId}`} className="mt-1 text-xl font-extrabold text-navy-900 sm:text-2xl">
+            <p className="text-sm font-bold text-navy-700">{heading}</p>
+            <h2 id={`apply-${jobId}`} className="mt-1 text-xl font-bold text-ink sm:text-2xl">
               {jobTitle}
             </h2>
           </div>
-          <button type="button" onClick={close} className="flex size-10 shrink-0 items-center justify-center rounded-full bg-paper text-navy-900 transition hover:bg-sky-soft" aria-label={labels.close}>
+          <button type="button" onClick={close} className="flex size-11 shrink-0 items-center justify-center rounded-[2px] bg-paper text-ink transition hover:bg-limestone" aria-label={labels.close}>
             <X className="size-5" />
           </button>
         </div>
@@ -79,10 +79,10 @@ function ApplicationForm({ jobId, labels: l, onFinish }: { jobId: number; labels
   if (state?.ok) {
     return (
       <div className="flex flex-col items-center gap-5 px-8 py-14 text-center">
-        <div className="flex size-20 items-center justify-center rounded-full bg-sky-soft">
-          <CircleCheck className="size-10 text-navy-600" strokeWidth={1.5} />
+        <div className="flex size-20 items-center justify-center rounded-[2px] bg-limestone">
+          <CircleCheck className="size-10 text-navy-700" strokeWidth={1.5} />
         </div>
-        <p className="max-w-md text-lg leading-8 font-bold text-navy-900">{l.success}</p>
+        <p className="max-w-md text-lg leading-8 font-bold text-ink">{l.success}</p>
         <button type="button" onClick={onFinish} className="btn-primary">
           {l.close}
         </button>
@@ -98,36 +98,36 @@ function ApplicationForm({ jobId, labels: l, onFinish }: { jobId: number; labels
       <input type="hidden" name="careerId" value={jobId} />
 
       <label className="grid gap-2">
-        <span className="text-sm font-bold text-navy-900">{l.name} *</span>
+        <span className="text-sm font-bold text-ink">{l.name} *</span>
         <input name="name" required maxLength={150} autoComplete="name" className={`field ${bad("name")}`} />
       </label>
       <label className="grid gap-2">
-        <span className="text-sm font-bold text-navy-900">{l.email} *</span>
+        <span className="text-sm font-bold text-ink">{l.email} *</span>
         <input name="email" type="email" required maxLength={200} autoComplete="email" dir="ltr" className={`field ${bad("email")}`} />
       </label>
       <label className="grid gap-2">
-        <span className="text-sm font-bold text-navy-900">{l.phone} *</span>
+        <span className="text-sm font-bold text-ink">{l.phone} *</span>
         <input name="phone" type="tel" required maxLength={50} autoComplete="tel" dir="ltr" className={`field ${bad("phone")}`} />
       </label>
       <label className="grid gap-2">
-        <span className="text-sm font-bold text-navy-900">{l.city}</span>
+        <span className="text-sm font-bold text-ink">{l.city}</span>
         <input name="city" maxLength={100} autoComplete="address-level2" className="field" />
       </label>
       <label className="grid gap-2 sm:col-span-2">
-        <span className="text-sm font-bold text-navy-900">{l.link}</span>
+        <span className="text-sm font-bold text-ink">{l.link}</span>
         <input name="link" type="url" maxLength={300} dir="ltr" placeholder="https://" className={`field ${bad("link")}`} />
       </label>
 
       <div className="grid gap-2 sm:col-span-2">
-        <span className="text-sm font-bold text-navy-900">{l.cv} *</span>
+        <span className="text-sm font-bold text-ink">{l.cv} *</span>
         <label
-          className={`flex cursor-pointer items-center gap-4 rounded-2xl border-2 border-dashed px-5 py-4 transition hover:border-navy-600 hover:bg-sky-soft/40 ${
-            state?.fields?.includes("cv") ? "border-red-400" : fileName ? "border-navy-600 bg-sky-soft/40" : "border-line"
+          className={`flex cursor-pointer items-center gap-4  border-2 border-dashed px-5 py-4 transition hover:border-navy-700 hover:bg-limestone/40 ${
+            state?.fields?.includes("cv") ? "border-red-400" : fileName ? "border-navy-700 bg-limestone/40" : "border-line"
           }`}
         >
           <span className="icon-tile size-11 shrink-0">{fileName ? <FileText className="size-5" /> : <Upload className="size-5" />}</span>
           <span className="min-w-0 flex-1">
-            <span className="block truncate font-bold text-navy-900" dir="auto">
+            <span className="block truncate font-bold text-ink" dir="auto">
               {fileName || l.cv_pick}
             </span>
             <span className="block text-xs text-muted">PDF · DOC · DOCX</span>
@@ -144,12 +144,12 @@ function ApplicationForm({ jobId, labels: l, onFinish }: { jobId: number; labels
       </div>
 
       <label className="grid gap-2 sm:col-span-2">
-        <span className="text-sm font-bold text-navy-900">{l.message}</span>
+        <span className="text-sm font-bold text-ink">{l.message}</span>
         <textarea name="message" rows={4} maxLength={3000} className="field resize-y" />
       </label>
 
       <div className="flex flex-wrap items-center gap-4 pt-1 sm:col-span-2">
-        <button type="submit" disabled={pending} className="btn-primary px-8 py-4 disabled:opacity-60">
+        <button type="submit" disabled={pending} className="btn-accent px-8 py-4 disabled:opacity-60">
           {pending ? l.sending : l.submit}
           <Send className="flip-rtl size-4" aria-hidden />
         </button>

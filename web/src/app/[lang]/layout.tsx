@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Almarai } from "next/font/google";
+import { Archivo, IBM_Plex_Mono, IBM_Plex_Sans_Arabic } from "next/font/google";
 import { notFound } from "next/navigation";
 import { Footer } from "@/components/site/Footer";
 import { Header } from "@/components/site/Header";
@@ -8,22 +8,20 @@ import { getContent } from "@/lib/content";
 import { dir, isLocale } from "@/lib/i18n";
 import "../globals.css";
 
-const almarai = Almarai({
-  subsets: ["arabic", "latin"],
-  weight: ["300", "400", "700", "800"],
-  variable: "--font-almarai",
-  display: "swap",
-});
+// Brand type: Archivo (Latin, wide axis for headlines), IBM Plex Sans Arabic, IBM Plex Mono for labels and data.
+const archivo = Archivo({ subsets: ["latin"], axes: ["wdth"], variable: "--font-archivo", display: "swap" });
+const plexArabic = IBM_Plex_Sans_Arabic({ subsets: ["arabic"], weight: ["300", "400", "500", "600", "700"], variable: "--font-plex-arabic", display: "swap" });
+const plexMono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-plex-mono", display: "swap" });
 
-export const viewport: Viewport = { themeColor: "#0b1c30" };
+export const viewport: Viewport = { themeColor: "#0c1b24" };
 
 export async function generateMetadata({ params }: LayoutProps<"/[lang]">): Promise<Metadata> {
   const { lang } = await params;
   const ar = lang === "ar";
-  const name = ar ? "شركة القدرة للاستشارات الهندسية" : "Al-Qudra Engineering Consultancy";
+  const name = ar ? "القدرة الدائمة للاستشارات الهندسية" : "ALQUDRA — Aldaema for Engineering Consultations";
   return {
     metadataBase: new URL(process.env.SITE_URL ?? "https://www.alqudra-ec.com"),
-    title: { default: name, template: `%s | ${ar ? "القدرة" : "Al-Qudra"}` },
+    title: { default: name, template: `%s | ${ar ? "القدرة" : "ALQUDRA"}` },
     description: ar
       ? "إشراف هندسي ومراجعة فنية وضبط جودة وحوكمة هندسية للمشاريع الاستراتيجية والبنية التحتية في ليبيا."
       : "Engineering supervision, technical review, quality control and engineering governance for strategic projects and infrastructure in Libya.",
@@ -46,9 +44,9 @@ export default async function SiteLayout({ children, params }: LayoutProps<"/[la
   ];
 
   return (
-    <html lang={lang} dir={dir(lang)} className={almarai.variable}>
+    <html lang={lang} dir={dir(lang)} className={`${archivo.variable} ${plexArabic.variable} ${plexMono.variable}`}>
       <body>
-        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:start-3 focus:z-[60] focus:rounded-full focus:bg-white focus:px-4 focus:py-2">
+        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:start-3 focus:z-[60] focus:rounded-[2px] focus:bg-paper focus:px-4 focus:py-2">
           {lang === "ar" ? "انتقل إلى المحتوى" : "Skip to content"}
         </a>
         <Header

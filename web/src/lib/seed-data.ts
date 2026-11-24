@@ -43,7 +43,7 @@ export const TEXTS: T[] = [
   ["home.about_eyebrow", "Who we are: small title", "text", "Who we are", "من نحن"],
   ["home.about_title", "Who we are: title", "text", "Engineering is a human and national responsibility.", "الهندسة مسؤولية إنسانية ووطنية."],
   ["home.about_text", "Who we are: paragraph", "textarea",
-    "Al-Qudra is an integrated engineering consultancy that combines deep-rooted values with profound engineering expertise. Our specialists pair global engineering standards with a precise understanding of the local context to deliver effective, sustainable and detail-driven solutions.",
+    "ALQUDRA is an integrated engineering consultancy that combines deep-rooted values with profound engineering expertise. Our specialists pair global engineering standards with a precise understanding of the local context to deliver effective, sustainable and detail-driven solutions.",
     "القدرة مؤسسة هندسية استشارية متكاملة تدمج بين القيم الراسخة والخبرة الهندسية العميقة. يعمل فريقنا من الخبراء على الدمج بين المعايير الهندسية العالمية والفهم الدقيق للبيئة المحلية، لتقديم حلول فعّالة ومستدامة تُعنى بأدق التفاصيل."],
   ["home.q3_eyebrow", "Q³: small title", "text", "Our methodology", "منهجيتنا"],
   ["home.q3_title", "Q³: title", "text", "The Q³ philosophy", "فلسفة Q³"],
@@ -52,12 +52,12 @@ export const TEXTS: T[] = [
     "ترتكز هويتنا على فلسفة Q³، وهي المنهجية التي تدير كافة خدماتنا الاستشارية من خلال ثلاث ركائز أساسية."],
   ["home.services_eyebrow", "Services: small title", "text", "What we do", "ماذا نقدم"],
   ["home.services_title", "Services: title", "text", "Managing and auditing every phase of strategic projects.", "إدارة وتدقيق كافة مراحل المشاريع الاستراتيجية."],
-  ["home.strengths_eyebrow", "Strengths: small title", "text", "Why Al-Qudra", "لماذا القدرة"],
+  ["home.strengths_eyebrow", "Strengths: small title", "text", "Why ALQUDRA", "لماذا القدرة"],
   ["home.strengths_title", "Strengths: title", "text", "We go beyond site supervision.", "لا نكتفي بالإشراف على المواقع."],
   ["home.strengths_text", "Strengths: paragraph", "textarea",
     "We take full responsibility for the success of every project, from the earliest planning stages through to final delivery.",
     "نتحمل مسؤولية النجاح الكامل لكل مشروع، من أولى مراحل التخطيط حتى لحظة التسليم النهائي."],
-  ["home.gallery_eyebrow", "Gallery strip: small title", "text", "Inside Al-Qudra", "من داخل القدرة"],
+  ["home.gallery_eyebrow", "Gallery strip: small title", "text", "Inside ALQUDRA", "من داخل القدرة"],
   ["home.gallery_title", "Gallery strip: title", "text", "The team behind every approval.", "الفريق وراء كل اعتماد."],
   ["home.gallery_text", "Gallery strip: paragraph", "textarea",
     "Engineers, reviewers and specialists working side by side, from the first drawing review to the final site approval.",
@@ -70,20 +70,20 @@ export const TEXTS: T[] = [
   ["home.cta_button", "Bottom banner: button", "text", "Contact us", "تواصل معنا"],
 
   // ---- About ----
-  ["about.title", "Page title", "text", "About Al-Qudra", "عن شركة القدرة"],
+  ["about.title", "Page title", "text", "About ALQUDRA", "عن شركة القدرة"],
   ["about.intro", "Intro line under the title", "textarea",
     "A trusted partner in construction and development, specialised in engineering supervision, technical review and quality control.",
     "الشريك الموثوق في عالم الإنشاءات والتطوير، المتخصص في الإشراف الهندسي والمراجعة الفنية وضبط الجودة."],
   ["about.story_title", "Story: title", "text", "Our story", "قصتنا"],
   ["about.story", "Story: paragraphs (one per line)", "list",
     [
-      "Al-Qudra for Engineering Consultancy and Services is a leading engineering consultancy firm and an integrated ecosystem built on precision, innovation, and an unwavering commitment to the highest standards of quality and engineering governance.",
+      "ALQUDRA — Aldaema for Engineering Consultations is a leading engineering consultancy firm and an integrated ecosystem built on precision, innovation, and an unwavering commitment to the highest standards of quality and engineering governance.",
       "The company was founded to be the trusted partner in the world of construction and development, specialising in engineering supervision, technical review, quality control management, and delivering integrated engineering solutions that balance operational efficiency with visual aesthetics.",
       "Throughout our journey, we have participated in the supervision of more than 1,000 projects for over 200 clients across cities throughout Libya, with a steadfast focus on the infrastructure and urban planning sectors.",
       "Every study receives dedicated attention, and every document undergoes rigorous review, because our philosophy is grounded in one principle: engineering is not merely designs and blueprints. It is a human and national responsibility that we carry with professionalism and devotion toward our clients, society, and the environment.",
     ].join("\n"),
     [
-      "شركة القدرة للاستشارات والخدمات الهندسية مؤسسة استشارية رائدة ومنظومة متكاملة تُبنى على الدقة والابتكار والالتزام بأعلى معايير الجودة والحوكمة الهندسية.",
+      "القدرة الدائمة للاستشارات الهندسية مؤسسة استشارية رائدة ومنظومة متكاملة تُبنى على الدقة والابتكار والالتزام بأعلى معايير الجودة والحوكمة الهندسية.",
       "تأسست الشركة لتكون الشريك الموثوق في عالم الإنشاءات والتطوير، حيث تتخصص في الإشراف الهندسي والمراجعة الفنية وإدارة ضبط الجودة، وتقديم حلول هندسية متكاملة تجمع بين الكفاءة التشغيلية والجمالية البصرية.",
       "على مدار مسيرتنا، شاركنا في الإشراف على أكثر من 1,000 مشروع لأكثر من 200 عميل في أكثر من مدينة حول ليبيا، مع تركيز راسخ على قطاعي البنية التحتية والتخطيط العمراني.",
       "كل دراسة تحظى باهتمام خاص، وكل مستند يخضع لمراجعة دقيقة، لأن فلسفتنا تنطلق من مبدأ واحد: الهندسة ليست مجرد تصاميم ومخططات، بل هي مسؤولية إنسانية ووطنية نحملها باحترافية وإخلاص تجاه العميل والمجتمع والبيئة.",
@@ -102,13 +102,13 @@ export const TEXTS: T[] = [
     "تمثل قيمنا الجوهرية الركيزة التي يقوم عليها كل قرار وكل إجراء داخل الشركة."],
   ["about.goals_title", "Strategic goals: title", "text", "Strategic goals", "الأهداف الاستراتيجية"],
   ["about.quote", "Closing quote", "textarea",
-    "Al-Qudra is not just a consultancy name. It is the standard of quality and the guarantee of structural safety for every facility under its supervision.",
+    "ALQUDRA is not just a consultancy name. It is the standard of quality and the guarantee of structural safety for every facility under its supervision.",
     "القدرة ليست مجرد اسم استشاري، بل هي ضابط الجودة وصمام الأمان لكل منشأة تُشرف عليها."],
 
   // ---- Services ----
   ["services.title", "Page title", "text", "Our services", "خدماتنا"],
   ["services.intro", "Intro paragraph", "textarea",
-    "Al-Qudra specialises in managing and auditing all phases of strategic projects and infrastructure in accordance with international quality standards.",
+    "ALQUDRA specialises in managing and auditing all phases of strategic projects and infrastructure in accordance with international quality standards.",
     "تتخصص القدرة في إدارة وتدقيق كافة مراحل المشاريع الاستراتيجية والبنية التحتية وفق معايير الجودة العالمية."],
   ["services.process_title", "How we work: title", "text", "How we work", "كيف نعمل"],
   ["services.process", "How we work: steps (one per line, \"Title: description\")", "list",
@@ -176,7 +176,7 @@ export const TEXTS: T[] = [
   // ---- Gallery ----
   ["gallery.title", "Page title", "text", "Gallery", "معرض الصور"],
   ["gallery.intro", "Intro paragraph", "textarea",
-    "A look inside Al-Qudra: our team, our offices and the work behind every approval.",
+    "A look inside ALQUDRA: our team, our offices and the work behind every approval.",
     "نظرة من داخل القدرة: فريقنا ومكاتبنا والعمل الذي يقف وراء كل اعتماد."],
 
   // ---- Contact ----
@@ -207,7 +207,7 @@ export const TEXTS: T[] = [
   ["footer.contact", "Column title: contact", "text", "Get in touch", "تواصل معنا"],
   ["footer.newsletter", "Newsletter title", "text", "Stay updated", "ابقَ على اطلاع"],
   ["footer.newsletter_text", "Newsletter text", "textarea", "News about our projects and opportunities, a few times a year.", "أخبار مشاريعنا وفرصنا، بضع مرات في السنة."],
-  ["footer.rights", "Copyright line", "text", "Al-Qudra for Engineering Consultancy and Services. All rights reserved.", "شركة القدرة للاستشارات والخدمات الهندسية. جميع الحقوق محفوظة."],
+  ["footer.rights", "Copyright line", "text", "ALQUDRA — Aldaema for Engineering Consultations. All rights reserved.", "القدرة الدائمة للاستشارات الهندسية. جميع الحقوق محفوظة."],
 
   // ---- Form messages ----
   ["forms.sending", "While sending", "text", "Sending...", "جارٍ الإرسال..."],
@@ -222,8 +222,8 @@ export const TEXTS: T[] = [
 type M = [key: string, group: string, label: string, type: "image" | "video", src: string];
 
 export const MEDIA: M[] = [
-  ["brand.logo_dark", "Brand", "Logo (navy, for light backgrounds)", "image", "/brand/logo-navy.png"],
-  ["brand.logo_light", "Brand", "Logo (white, for dark backgrounds)", "image", "/brand/logo-white.png"],
+  ["brand.logo_dark", "Brand", "Logo (ink, for light backgrounds)", "image", "/brand/logo-ink.png"],
+  ["brand.logo_light", "Brand", "Logo (paper, for dark backgrounds)", "image", "/brand/logo-paper.png"],
   ["home.hero_video", "Home", "Hero background video", "video", "/videos/hero.mp4"],
   ["home.hero_poster", "Home", "Hero image (shown while the video loads)", "image", "/images/hero-poster.webp"],
   ["home.about_image", "Home", "Who we are: main photo", "image", "/images/about-b1.webp"],
@@ -288,7 +288,7 @@ export const LISTS: Record<string, { label: string; items: L[] }> = {
     items: [
       { titleEn: "Consistent excellence", titleAr: "تميز متسق", bodyEn: "Deliver consistent, high-calibre engineering supervision and governance across all projects.", bodyAr: "تقديم خدمات إشراف هندسي وحوكمة عالية المستوى ومتسقة عبر جميع المشاريع.", icon: "target" },
       { titleEn: "Q³ as the benchmark", titleAr: "Q³ معيارًا", bodyEn: "Operationalise the Q³ framework as a standard benchmark to raise consultation efficiency.", bodyAr: "تفعيل منهجية Q³ كمعيار قياسي لرفع كفاءة واعتمادية الحلول الاستشارية.", icon: "gauge" },
-      { titleEn: "A growing portfolio", titleAr: "محفظة متنامية", bodyEn: "Expand the Al-Qudra consultancy portfolio while maintaining elite quality control standards.", bodyAr: "التوسع في محفظة المشاريع الاستشارية للشركة مع الحفاظ على أعلى معايير ضبط الجودة.", icon: "trending-up" },
+      { titleEn: "A growing portfolio", titleAr: "محفظة متنامية", bodyEn: "Expand the ALQUDRA consultancy portfolio while maintaining elite quality control standards.", bodyAr: "التوسع في محفظة المشاريع الاستشارية للشركة مع الحفاظ على أعلى معايير ضبط الجودة.", icon: "trending-up" },
       { titleEn: "National talent", titleAr: "الكوادر الوطنية", bodyEn: "Train and empower national engineering talent to lead site supervision with precision.", bodyAr: "تأهيل وتدريب الكوادر الهندسية الوطنية للقيام بأعمال الإشراف والدراسات بمهارية ودقة.", icon: "graduation-cap" },
       { titleEn: "Strategic partnerships", titleAr: "شراكات استراتيجية", bodyEn: "Build enduring partnerships with government institutions, developers and key stakeholders.", bodyAr: "بناء شراكات استراتيجية مستدامة مع أجهزة الدولة والمطورين والمؤسسات الاقتصادية.", icon: "handshake" },
     ],

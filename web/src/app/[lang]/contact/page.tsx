@@ -36,17 +36,16 @@ export default async function ContactPage({ params }: PageProps<"/[lang]/contact
       <section className="py-24 sm:py-32">
         <div className="container-x grid gap-10 lg:grid-cols-12">
           <Reveal className="lg:col-span-5">
-            <div className="relative h-full overflow-hidden rounded-[2rem] bg-navy-900 p-8 text-white sm:p-10">
-              <div className="grid-lines absolute inset-0" aria-hidden />
+            <div className="relative h-full overflow-hidden rounded-[2rem] bg-navy-900 p-8 text-paper sm:p-10">
               <div className="relative grid gap-7">
                 {info.map((item) => {
                   const body = (
                     <>
-                      <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white/10 text-sky">
+                      <span className="flex size-12 shrink-0 items-center justify-center  bg-paper/10 text-sky">
                         <item.icon className="size-5" />
                       </span>
                       <span>
-                        <span className="block text-sm text-white/55">{item.label}</span>
+                        <span className="block text-sm text-paper/55">{item.label}</span>
                         <span className="mt-1 block text-lg leading-7 font-bold" dir={item.ltr ? "ltr" : undefined}>
                           {item.value}
                         </span>
@@ -66,7 +65,7 @@ export default async function ContactPage({ params }: PageProps<"/[lang]/contact
               </div>
               <div className="relative mt-10 flex flex-wrap gap-3 border-t border-white/10 pt-8">
                 {whatsapp && (
-                  <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer" className="btn bg-[#25d366] text-white hover:-translate-y-0.5">
+                  <a href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer" className="btn bg-[#25d366] text-paper">
                     <MessageCircle className="size-4" /> WhatsApp
                   </a>
                 )}
@@ -82,7 +81,7 @@ export default async function ContactPage({ params }: PageProps<"/[lang]/contact
 
           <Reveal delay={0.1} className="lg:col-span-7">
             <div className="rounded-[2rem] border border-line p-8 sm:p-10">
-              <h2 className="text-2xl font-extrabold text-navy-900">{c.t("contact.form_title")}</h2>
+              <h2 className="text-2xl font-bold text-ink">{c.t("contact.form_title")}</h2>
               <div className="mt-8">
                 <ContactForm
                   labels={{

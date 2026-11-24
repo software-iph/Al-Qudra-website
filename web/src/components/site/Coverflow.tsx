@@ -73,11 +73,9 @@ export function Coverflow({
       {/* Huge faded title behind the cards (drifts slightly against the mouse) */}
       <p
         aria-hidden
-        className="aq-backdrop pointer-events-none absolute inset-x-0 -top-6 text-center text-[clamp(2.25rem,8.5vw,8.5rem)] leading-none font-extrabold whitespace-nowrap uppercase select-none sm:-top-10"
+        className="aq-backdrop pointer-events-none absolute inset-x-0 -top-6 text-center text-[clamp(2.25rem,8.5vw,8.5rem)] leading-none font-black whitespace-nowrap text-ink/[0.06] uppercase select-none sm:-top-10"
         style={{
-          background: "linear-gradient(to bottom, rgb(22 56 83 / 0.28) 30%, rgb(22 56 83 / 0) 78%)",
-          WebkitBackgroundClip: "text",
-          backgroundClip: "text",
+          fontStretch: "125%",
           color: "transparent",
         }}
       >
@@ -114,13 +112,12 @@ export function Coverflow({
                 tabIndex={visible ? 0 : -1}
                 aria-label={slide.caption || `${fallbackCaption} ${i + 1}`}
                 aria-current={p === 0}
-                className="aq-card absolute top-1/2 left-1/2 overflow-hidden rounded-[22px] bg-white shadow-[0_20px_40px_rgb(7_19_34/0.18)]"
+                className="aq-card absolute top-1/2 left-1/2 overflow-hidden bg-limestone"
                 data-pos={visible ? p * forward : "hidden"}
               >
                 <span className="aq-tilt block size-full">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={slide.src} alt="" className="size-full object-cover" draggable={false} />
-                  <span className="aq-shine" aria-hidden />
+                  <img src={slide.src} alt="" className="photo size-full object-cover" draggable={false} />
                 </span>
               </button>
             );
@@ -131,7 +128,7 @@ export function Coverflow({
           type="button"
           onClick={() => go(index - 1)}
           aria-label="Previous"
-          className="absolute start-2 top-1/2 z-20 flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-navy-700/70 text-white backdrop-blur transition hover:scale-110 hover:bg-navy-950 sm:start-5"
+          className="absolute start-2 top-1/2 z-20 flex size-11 -translate-y-1/2 items-center justify-center rounded-[2px] bg-ink text-paper transition-colors duration-[120ms] hover:bg-navy-700 sm:start-5"
         >
           <ChevronLeft className="flip-rtl size-5" />
         </button>
@@ -139,7 +136,7 @@ export function Coverflow({
           type="button"
           onClick={() => go(index + 1)}
           aria-label="Next"
-          className="absolute end-2 top-1/2 z-20 flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-navy-700/70 text-white backdrop-blur transition hover:scale-110 hover:bg-navy-950 sm:end-5"
+          className="absolute end-2 top-1/2 z-20 flex size-11 -translate-y-1/2 items-center justify-center rounded-[2px] bg-ink text-paper transition-colors duration-[120ms] hover:bg-navy-700 sm:end-5"
         >
           <ChevronRight className="flip-rtl size-5" />
         </button>
@@ -148,17 +145,17 @@ export function Coverflow({
       {/* Caption of the active photo */}
       <div className="mt-10 text-center" aria-live="polite">
         {/* Re-animates only when the caption text itself changes. */}
-        <h3 key={caption} className="aq-caption relative inline-block px-2 text-2xl font-extrabold text-navy-700 sm:text-4xl">
+        <h3 key={caption} className="aq-caption relative inline-block px-2 text-2xl font-bold text-ink sm:text-4xl">
           {caption}
         </h3>
-        <p className="mt-3 text-sm font-bold tracking-[0.2em] text-muted tabular-nums sm:text-base" dir="ltr">
+        <p className="label-mono mt-3 text-concrete tabular-nums" dir="ltr">
           <span className="text-navy-700">{String(index + 1).padStart(2, "0")}</span> / {String(count).padStart(2, "0")}
         </p>
         {/* Thin timer bar: fills until the next photo slides in. */}
-        <div className="mx-auto mt-4 h-[3px] w-28 overflow-hidden rounded-full bg-navy-700/15">
+        <div className="mx-auto mt-4 h-0.5 w-28 overflow-hidden bg-line">
           <span
             key={index}
-            className="aq-progress block h-full rounded-full bg-navy-700"
+            className="aq-progress block h-full bg-navy-700"
             style={{ animationPlayState: paused ? "paused" : "running" }}
             onAnimationEnd={() => {
               if (!reducedRef.current && count > 1) go(index + 1);
@@ -176,8 +173,8 @@ export function Coverflow({
             onClick={() => go(i)}
             aria-label={`${fallbackCaption} ${i + 1}`}
             aria-current={i === index}
-            className={`size-2.5 rounded-full transition-[transform,background-color] duration-300 ease-out ${
-              i === index ? "scale-[1.35] bg-navy-700" : "bg-navy-700/20 hover:bg-navy-700/45"
+            className={`flex size-6 items-center justify-center before:block before:size-2 before:transition-[transform,background-color] before:duration-[200ms] before:ease-settle ${
+              i === index ? "before:rotate-[30deg] before:bg-ink" : "before:bg-ink/20 hover:before:bg-ink/45"
             }`}
           />
         ))}

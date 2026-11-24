@@ -43,13 +43,13 @@ export function GalleryGrid({ items, rtl }: { items: GalleryItem[]; rtl: boolean
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-40px" }}
             transition={{ duration: 0.7, delay: (i % 3) * 0.06, ease: [0.16, 1, 0.3, 1] }}
-            className="group relative mb-5 block w-full overflow-hidden rounded-3xl bg-paper text-start"
+            className="group relative mb-5 block w-full overflow-hidden  bg-paper text-start"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={item.src} alt={item.caption} loading="lazy" className="w-full transition duration-700 group-hover:scale-105" />
-            <span className="absolute inset-0 bg-gradient-to-t from-navy-950/70 via-transparent to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
+            <span className="absolute inset-0 bg-gradient-to-t from-navy-950/70 via-transparent to-transparent opacity-0 transition duration-[320ms] group-hover:opacity-100" />
             {item.caption && (
-              <span className="absolute inset-x-5 bottom-4 translate-y-2 text-sm font-bold text-white opacity-0 transition duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+              <span className="absolute inset-x-5 bottom-4 translate-y-2 text-sm font-bold text-paper opacity-0 transition duration-[320ms] group-hover:translate-y-0 group-hover:opacity-100">
                 {item.caption}
               </span>
             )}
@@ -60,7 +60,7 @@ export function GalleryGrid({ items, rtl }: { items: GalleryItem[]; rtl: boolean
       <AnimatePresence>
         {current && (
           <motion.div
-            className="fixed inset-0 z-[70] flex items-center justify-center bg-navy-950/95 p-4 backdrop-blur"
+            className="fixed inset-0 z-[70] flex items-center justify-center bg-navy-900/95 p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -77,10 +77,10 @@ export function GalleryGrid({ items, rtl }: { items: GalleryItem[]; rtl: boolean
               onClick={(e) => e.stopPropagation()}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={current.src} alt={current.caption} className="max-h-[80vh] w-auto rounded-2xl object-contain" />
-              {current.caption && <figcaption className="mt-4 text-center text-white/80">{current.caption}</figcaption>}
+              <img src={current.src} alt={current.caption} className="max-h-[80vh] w-auto  object-contain" />
+              {current.caption && <figcaption className="mt-4 text-center text-paper/80">{current.caption}</figcaption>}
             </motion.figure>
-            <button type="button" onClick={close} aria-label="Close" className="absolute top-5 end-5 flex size-12 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20">
+            <button type="button" onClick={close} aria-label="Close" className="absolute top-5 end-5 flex size-12 items-center justify-center rounded-[2px] bg-paper/10 text-paper hover:bg-paper/20">
               <X className="size-6" />
             </button>
             {items.length > 1 && (
@@ -92,7 +92,7 @@ export function GalleryGrid({ items, rtl }: { items: GalleryItem[]; rtl: boolean
                     step(-1);
                   }}
                   aria-label="Previous"
-                  className="absolute start-4 top-1/2 flex size-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                  className="absolute start-4 top-1/2 flex size-12 -translate-y-1/2 items-center justify-center rounded-[2px] bg-paper/10 text-paper hover:bg-paper/20"
                 >
                   <ChevronLeft className="flip-rtl size-6" />
                 </button>
@@ -103,13 +103,13 @@ export function GalleryGrid({ items, rtl }: { items: GalleryItem[]; rtl: boolean
                     step(1);
                   }}
                   aria-label="Next"
-                  className="absolute end-4 top-1/2 flex size-12 -translate-y-1/2 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                  className="absolute end-4 top-1/2 flex size-12 -translate-y-1/2 items-center justify-center rounded-[2px] bg-paper/10 text-paper hover:bg-paper/20"
                 >
                   <ChevronRight className="flip-rtl size-6" />
                 </button>
               </>
             )}
-            <span className="absolute bottom-5 left-1/2 -translate-x-1/2 text-sm text-white/60" dir="ltr">
+            <span className="absolute bottom-5 left-1/2 -translate-x-1/2 text-sm text-paper/60" dir="ltr">
               {(index ?? 0) + 1} / {items.length}
             </span>
           </motion.div>
