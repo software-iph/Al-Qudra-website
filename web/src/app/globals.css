@@ -37,13 +37,6 @@
   --ease-out-expo: cubic-bezier(0.2, 0, 0, 1);
 }
 
-/* Home hero film: settles from 1.02 as the page opens (the brand caps scale at 1.02). */
-.aq-hero-video { animation: aq-hero-settle 2.4s cubic-bezier(0.2, 0, 0, 1) both; }
-@keyframes aq-hero-settle {
-  from { transform: scale(1.02); opacity: 0; }
-  to { transform: scale(1); }
-}
-
 /* Accent line under page titles draws itself in */
 .aq-line { animation: aq-line 1.2s 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
 @keyframes aq-line {

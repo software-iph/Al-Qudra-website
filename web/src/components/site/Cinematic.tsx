@@ -12,44 +12,6 @@ import { EASE } from "./Motion";
  * progress to transforms (GPU-friendly: transform, opacity, clip-path only).
  */
 
-/**
- * Full-screen hero that stays pinned while the film pulls back into a framed
- * shot (the paper page appears around it) and the headline lifts away.
- */
-export function CinematicHero({ media, children, overlay }: { media: ReactNode; children: ReactNode; overlay?: ReactNode }) {
-  const ref = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
-  const clip = useTransform(scrollYProgress, [0, 1], ["inset(0% 0% 0% 0%)", "inset(9% 5% 9% 5%)"]);
-  const zoom = useTransform(scrollYProgress, [0, 1], [1, 1.14]);
-  // The headline stays crisp and simply travels up; it only fades at the very end.
-  const textY = useTransform(scrollYProgress, [0, 0.75], ["0%", "-55%"]);
-  const textOpacity = useTransform(scrollYProgress, [0.4, 0.72], [1, 0]);
-
-  return (
-    <section ref={ref} className="relative h-[175svh] bg-paper">
-      <div className="sticky top-0 h-svh overflow-hidden">
-        <motion.div className="absolute inset-0 overflow-hidden bg-navy-900" style={{ clipPath: clip }}>
-          {/* Opening shot: the film opens like a camera shutter, then settles from a slight zoom. */}
-          <motion.div
-            className="absolute inset-0"
-            initial={{ clipPath: "inset(47% 0% 47% 0%)", scale: 1.25 }}
-            animate={{ clipPath: "inset(0% 0% 0% 0%)", scale: 1 }}
-            transition={{ clipPath: { duration: 1.3, ease: [0.76, 0, 0.24, 1] }, scale: { duration: 2.2, ease: EASE } }}
-          >
-            <motion.div className="absolute inset-0" style={{ scale: zoom }}>
-              {media}
-            </motion.div>
-          </motion.div>
-          {overlay}
-        </motion.div>
-        <motion.div className="relative flex h-full items-end pb-14 text-paper" style={{ y: textY, opacity: textOpacity }}>
-          {children}
-        </motion.div>
-      </div>
-    </section>
-  );
-}
-
 /** A statement whose words light up one by one as it scrolls through the screen. */
 export function ScrollWords({ text, className = "", progress }: { text: string; className?: string; progress?: MotionValue<number> }) {
   const ref = useRef<HTMLParagraphElement>(null);
