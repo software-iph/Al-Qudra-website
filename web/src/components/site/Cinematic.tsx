@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useScroll, useTransform, type MotionValue } from "motion/react";
+import { motion, useInView, useScroll, useTransform, type MotionValue } from "motion/react";
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { EASE } from "./Motion";
@@ -51,14 +51,14 @@ export function CinematicHero({ media, children, overlay }: { media: ReactNode; 
 }
 
 /** A statement whose words light up one by one as it scrolls through the screen. */
-export function ScrollWords({ text, className = "" }: { text: string; className?: string }) {
+export function ScrollWords({ text, className = "", progress }: { text: string; className?: string; progress?: MotionValue<number> }) {
   const ref = useRef<HTMLParagraphElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.85", "end 0.45"] });
   const words = text.split(/\s+/).filter(Boolean);
   return (
     <p ref={ref} className={className} aria-label={text}>
       {words.map((w, i) => (
-        <Word key={`${w}-${i}`} progress={scrollYProgress} from={i / words.length} to={(i + 1) / words.length}>
+        <Word key={`${w}-${i}`} progress={progress ?? scrollYProgress} from={i / words.length} to={(i + 1) / words.length}>
           {w}
         </Word>
       ))}
@@ -250,47 +250,54 @@ export function HeaderPhoto({ src }: { src: string }) {
   );
 }
 
-/** One drifting photo of the statement collage (its own speed = depth). */
-function Floater({ src, progress, travel, className }: { src: string; progress: MotionValue<number>; travel: number; className: string }) {
-  const y = useTransform(progress, [0, 1], [travel, -travel]);
-  return (
-    <motion.div className={`absolute hidden overflow-hidden bg-limestone lg:block ${className}`} style={{ y }} aria-hidden>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={src} alt="" className="photo size-full object-cover" />
-    </motion.div>
-  );
-}
-
 /**
- * The statement: a large centred line that lights up word by word, while four
- * photos drift past it at different speeds (near ones fast, far ones slow).
+ * The statement as a split scene: the line stays pinned on one side and lights
+ * up word by word, while a column of large photos scrolls past on the other,
+ * each opening with a wipe and drifting inside its frame.
  */
 export function StatementCollage({ text, photos, children }: { text: string; photos: string[]; children?: ReactNode }) {
   const ref = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const [a, b, c, d] = photos;
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.6", "end 0.9"] });
+  const frames = ["aspect-[4/5] w-full", "aspect-[4/3] w-10/12 ms-auto", "aspect-[5/4] w-9/12"];
   return (
-    <section ref={ref} className="relative overflow-hidden py-28 sm:py-40 lg:min-h-[120svh] lg:py-56">
-      {a && <Floater src={a} progress={scrollYProgress} travel={140} className="start-[4%] top-[10%] aspect-[3/4] w-[17vw]" />}
-      {b && <Floater src={b} progress={scrollYProgress} travel={60} className="end-[6%] top-[6%] aspect-square w-[13vw]" />}
-      {c && <Floater src={c} progress={scrollYProgress} travel={220} className="start-[11%] bottom-[4%] aspect-[4/3] w-[12vw]" />}
-      {d && <Floater src={d} progress={scrollYProgress} travel={100} className="end-[3%] bottom-[10%] aspect-[4/5] w-[18vw]" />}
-
-      <div className="container-x relative">
-        <div className="mx-auto max-w-[46rem] text-center">
-          <ScrollWords
-            text={text}
-            className="text-4xl leading-[1.08] font-extrabold tracking-[-0.02em] text-ink sm:text-6xl lg:text-[4.25rem] rtl:leading-[1.35] rtl:tracking-normal"
-          />
-          {children}
+    <section ref={ref} className="relative py-28 sm:py-36">
+      <div className="container-x grid gap-16 lg:grid-cols-12 lg:gap-20">
+        <div className="lg:col-span-6">
+          <div className="lg:sticky lg:top-[22vh]">
+            <ScrollWords
+              text={text}
+              progress={scrollYProgress}
+              className="text-4xl leading-[1.08] font-extrabold tracking-[-0.02em] text-ink sm:text-6xl lg:text-[4.25rem] rtl:leading-[1.35] rtl:tracking-normal"
+            />
+            {children}
+          </div>
         </div>
-        {/* Phones and tablets: the photos sit in a row under the statement. */}
-        <div className="mt-14 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:hidden">
-          {photos.slice(0, 4).map((src, i) => (
-            <ParallaxPhoto key={i} src={src} speed={8} className="aspect-[3/4]" />
+        <div className="grid gap-8 lg:col-span-6 lg:gap-14">
+          {photos.slice(0, 3).map((src, i) => (
+            <WipeFrame key={i} className={frames[i]}>
+              <ParallaxPhoto src={src} speed={10} className="size-full" />
+            </WipeFrame>
           ))}
         </div>
       </div>
     </section>
+  );
+}
+
+/** Opens its content with an upward wipe when it scrolls into view (watches the unclipped frame). */
+function WipeFrame({ children, className }: { children: ReactNode; className: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const shown = useInView(ref, { once: true, margin: "-15% 0px" });
+  return (
+    <div ref={ref} className={className}>
+      <motion.div
+        className="size-full"
+        initial={{ clipPath: "inset(100% 0% 0% 0%)" }}
+        animate={shown ? { clipPath: "inset(0% 0% 0% 0%)" } : undefined}
+        transition={{ duration: 1.1, ease: [0.76, 0, 0.24, 1] }}
+      >
+        {children}
+      </motion.div>
+    </div>
   );
 }

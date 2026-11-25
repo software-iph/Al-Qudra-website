@@ -54,9 +54,9 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
       {/* 2. One statement, lit word by word, with photos drifting past at different depths */}
       <StatementCollage
         text={c.t("home.about_title")}
-        photos={[c.media("home.about_image"), c.media("home.about_image_2"), ...c.gallery.slice(0, 2).map((g) => g.src)]}
+        photos={[c.media("home.about_image"), ...c.gallery.slice(0, 1).map((g) => g.src), c.media("home.about_image_2")]}
       >
-        <Tiles className="mt-12 justify-center" />
+        <Tiles className="mt-12" />
         <Reveal delay={0.1}>
           <Link href={`/${lang}/about`} className="btn-primary mt-10 px-8 py-4 text-base">
             {c.t("nav.learn_more")}
