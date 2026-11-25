@@ -5,6 +5,7 @@ import { and, count, eq, inArray, ne } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createSession, destroySession, requireUser } from "@/lib/auth";
+import { findLibraryFile, libraryUsage } from "@/lib/library";
 import { invalidateContent } from "@/lib/content";
 import { db, schema } from "@/lib/db";
 import { deleteCv, deleteUpload, isFile, saveUpload, UploadError } from "@/lib/uploads";
@@ -15,13 +16,19 @@ const str = (fd: FormData, key: string) => String(fd.get(key) ?? "").trim();
 const num = (fd: FormData, key: string) => Number.parseInt(str(fd, key), 10) || 0;
 const bool = (fd: FormData, key: string) => fd.get(key) === "on" || fd.get(key) === "1";
 
+/** Adds ?ok= / ?error= before any #anchor, so the page can show the message and still jump to the anchor. */
+function withMessage(path: string, kind: "ok" | "error", message: string) {
+  const [base, hash] = path.split("#");
+  return `${base}${base.includes("?") ? "&" : "?"}${kind}=${encodeURIComponent(message)}${hash ? `#${hash}` : ""}`;
+}
+
 function done(path: string, message: string): never {
   invalidateContent();
-  redirect(`${path}${path.includes("?") ? "&" : "?"}ok=${encodeURIComponent(message)}`);
+  redirect(withMessage(path, "ok", message));
 }
 
 function fail(path: string, message: string): never {
-  redirect(`${path}${path.includes("?") ? "&" : "?"}error=${encodeURIComponent(message)}`);
+  redirect(withMessage(path, "error", message));
 }
 
 /** Runs an upload, turning validation problems into a friendly error toast. */
@@ -68,29 +75,84 @@ export async function saveTexts(fd: FormData) {
   done(`/admin/texts?group=${group}`, "Texts saved.");
 }
 
-// ---------- media ----------
+// ---------- media (fixed photo/video spots) and the media library ----------
+// Files are never deleted when a spot changes: they stay in the library to be reused.
 
+async function mediaSlot(key: string, back: string) {
+  const [item] = await db.select().from(schema.media).where(eq(schema.media.key, key));
+  if (!item) fail(back, "Unknown photo/video spot.");
+  return item;
+}
+
+/** Removes an uploaded file once nothing on the website uses it any more (call after the row changed). */
+async function deleteIfUnused(src: string | null | undefined) {
+  if (!src || (await libraryUsage()).get(src)?.length) return;
+  await deleteUpload(src);
+}
+
+/** Upload a new file for a spot. */
 export async function replaceMedia(fd: FormData) {
   await requireUser();
-  const key = str(fd, "key");
+  const item = await mediaSlot(str(fd, "key"), "/admin/media");
   const file = fd.get("file");
-  const [item] = await db.select().from(schema.media).where(eq(schema.media.key, key));
-  if (!item) fail("/admin/media", "Unknown media slot.");
   if (!isFile(file)) fail("/admin/media", "Please choose a file.");
   const src = await upload("/admin/media", file, "media", item.type === "video" ? "video" : "image");
-  await db.update(schema.media).set({ src }).where(eq(schema.media.key, key));
-  await deleteUpload(item.src);
-  done("/admin/media", `"${item.label}" replaced.`);
+  await db.update(schema.media).set({ src }).where(eq(schema.media.key, item.key));
+  done("/admin/media", `"${item.label}" updated.`);
+}
+
+/** Use a file that is already in the library for a spot. */
+export async function assignMedia(fd: FormData) {
+  await requireUser();
+  const back = str(fd, "back") === "library" ? "/admin/media#library" : "/admin/media";
+  const item = await mediaSlot(str(fd, "key"), back);
+  const file = await findLibraryFile(str(fd, "src"));
+  if (!file) fail(back, "That file is no longer in the library.");
+  if (file.type !== (item.type === "video" ? "video" : "image")) {
+    fail(back, `"${item.label}" needs ${item.type === "video" ? "a video" : "a photo"}.`);
+  }
+  await db.update(schema.media).set({ src: file.src }).where(eq(schema.media.key, item.key));
+  done(back, `"${item.label}" now uses ${file.name}.`);
 }
 
 export async function resetMedia(fd: FormData) {
   await requireUser();
-  const key = str(fd, "key");
-  const [item] = await db.select().from(schema.media).where(eq(schema.media.key, key));
-  if (!item) fail("/admin/media", "Unknown media slot.");
-  await db.update(schema.media).set({ src: item.defaultSrc }).where(eq(schema.media.key, key));
-  await deleteUpload(item.src);
+  const item = await mediaSlot(str(fd, "key"), "/admin/media");
+  await db.update(schema.media).set({ src: item.defaultSrc }).where(eq(schema.media.key, item.key));
   done("/admin/media", `"${item.label}" restored.`);
+}
+
+/** Add photos/videos to the library (optionally using the first one for a spot right away). */
+export async function uploadToLibrary(fd: FormData) {
+  await requireUser();
+  const back = "/admin/media#library";
+  const files = fd.getAll("files").filter(isFile);
+  if (!files.length) fail(back, "Please choose at least one file.");
+  const saved: string[] = [];
+  for (const file of files) {
+    saved.push(await upload(back, file, "media", file.type.startsWith("video/") ? "video" : "image"));
+  }
+  const key = str(fd, "key");
+  if (key) {
+    const item = await mediaSlot(key, back);
+    const first = saved.find((src) => /\.(mp4|webm)$/i.test(src) === (item.type === "video"));
+    if (!first) fail(back, `Uploaded, but "${item.label}" needs ${item.type === "video" ? "a video" : "a photo"}.`);
+    await db.update(schema.media).set({ src: first }).where(eq(schema.media.key, item.key));
+    done(back, `Uploaded and used for "${item.label}".`);
+  }
+  done(back, saved.length === 1 ? "File added to the library." : `${saved.length} files added to the library.`);
+}
+
+/** Delete an uploaded file from the library — only when nothing on the website uses it. */
+export async function deleteLibraryFile(fd: FormData) {
+  await requireUser();
+  const back = "/admin/media#library";
+  const file = await findLibraryFile(str(fd, "src"));
+  if (!file || !file.uploaded) fail(back, "Only files uploaded from the dashboard can be deleted.");
+  const where = (await libraryUsage()).get(file.src);
+  if (where?.length) fail(back, `Still used in: ${where.join(", ")}.`);
+  await deleteUpload(file.src);
+  done(back, `${file.name} deleted.`);
 }
 
 // ---------- services ----------
@@ -118,7 +180,7 @@ export async function saveService(fd: FormData) {
   if (id) {
     const [old] = await db.select().from(schema.services).where(eq(schema.services.id, id));
     await db.update(schema.services).set({ ...values, ...(image ? { image } : {}) }).where(eq(schema.services.id, id));
-    if (image) await deleteUpload(old?.image);
+    if (image) await deleteIfUnused(old?.image);
   } else {
     if (!image) fail(back, "Please choose an image.");
     await db.insert(schema.services).values({ ...values, image });
@@ -129,7 +191,7 @@ export async function saveService(fd: FormData) {
 export async function deleteService(fd: FormData) {
   await requireUser();
   const [row] = await db.delete(schema.services).where(eq(schema.services.id, num(fd, "id"))).returning();
-  await deleteUpload(row?.image);
+  await deleteIfUnused(row?.image);
   done("/admin/services", "Service deleted.");
 }
 
@@ -189,7 +251,7 @@ export async function updateGalleryItem(fd: FormData) {
 export async function deleteGalleryItem(fd: FormData) {
   await requireUser();
   const [row] = await db.delete(schema.gallery).where(eq(schema.gallery.id, num(fd, "id"))).returning();
-  await deleteUpload(row?.src);
+  await deleteIfUnused(row?.src);
   done("/admin/gallery", "Photo deleted.");
 }
 
