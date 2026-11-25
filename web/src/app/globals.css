@@ -61,20 +61,21 @@
   width: var(--w);
   height: var(--h);
   margin: calc(var(--h) / -2) 0 0 calc(var(--w) / -2);
-  /* settle: a confident start and a long soft landing (no overshoot) */
+  /* springy settle: slight overshoot at the end of each move */
   transition:
-    transform 0.48s cubic-bezier(0.2, 0, 0, 1),
-    opacity 0.48s cubic-bezier(0.2, 0, 0, 1);
+    transform 1s cubic-bezier(0.34, 1.25, 0.5, 1),
+    opacity 0.8s ease,
+    box-shadow 0.8s ease;
   transform-style: preserve-3d;
   cursor: pointer;
 }
 @media (min-width: 640px) {
   .aq-card { --w: 400px; --h: 290px; --gap1: 240px; --gap2: 440px; }
 }
-.aq-card img { transition: filter 0.48s cubic-bezier(0.2, 0, 0, 1); }
+.aq-card img { transition: filter 0.9s ease; }
 
 /* Positions: side cards swing round in 3D (coverflow) */
-.aq-card[data-pos="0"] { z-index: 10; transform: translateX(0) translateZ(0) rotateY(0) scale(1); }
+.aq-card[data-pos="0"] { z-index: 10; transform: translateX(0) translateZ(0) rotateY(0) scale(1.1); box-shadow: 0 34px 60px rgb(7 19 34 / 0.28); }
 .aq-card[data-pos="1"] { z-index: 5; opacity: 0.92; transform: translateX(var(--gap1)) translateZ(-120px) rotateY(-28deg) scale(0.9); }
 .aq-card[data-pos="-1"] { z-index: 5; opacity: 0.92; transform: translateX(calc(var(--gap1) * -1)) translateZ(-120px) rotateY(28deg) scale(0.9); }
 .aq-card[data-pos="2"] { z-index: 1; opacity: 0.6; transform: translateX(var(--gap2)) translateZ(-320px) rotateY(-42deg) scale(0.8); }
@@ -88,18 +89,36 @@
   position: relative;
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
+.aq-card[data-pos="0"] .aq-tilt {
+  transform: rotateX(calc(var(--my, 0) * -5deg)) rotateY(calc(var(--mx, 0) * 7deg));
+}
 .aq-card[data-pos="0"] img {
-  filter: saturate(0.9);
-  animation: aq-kenburns 5s cubic-bezier(0.2, 0, 0, 1) both;
+  filter: none;
+  animation: aq-kenburns 7s ease-out both;
 }
 @keyframes aq-kenburns {
-  from { transform: scale(1.02); }
+  from { transform: scale(1.12); }
   to { transform: scale(1); }
 }
+/* soft light that follows the mouse on the front card */
+.aq-shine {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  background: radial-gradient(
+    circle at calc(50% + var(--mx, 0) * 40%) calc(50% + var(--my, 0) * 40%),
+    rgb(255 255 255 / 0.28),
+    transparent 55%
+  );
+  pointer-events: none;
+}
+.aq-coverflow:hover .aq-card[data-pos="0"] .aq-shine { opacity: 1; }
+
 /* Background title drifts slightly against the mouse */
 .aq-backdrop {
   transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-  transform: translateX(calc(var(--mx, 0) * -12px));
+  transform: translateX(calc(var(--mx, 0) * -24px));
 }
 
 /* Autoplay timer inside the active dot */
@@ -272,6 +291,14 @@ h3.aq-caption::after { left: calc(100% + 16px); }
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important; /* stop loops (photo strip) instead of spinning them */
     transition-duration: 0.01ms !important;
+  }
+  /* The "Inside ALQUDRA" carousel keeps its 3D swing (it only moves when the
+     visitor clicks or swipes; automatic sliding stays off with reduced motion). */
+  .aq-card {
+    transition-duration: 1s, 0.8s, 0.8s !important;
+  }
+  .aq-tilt {
+    transition-duration: 0.5s !important;
   }
   /* No drifting: the photo rows become swipeable instead. */
   .aq-marquee {

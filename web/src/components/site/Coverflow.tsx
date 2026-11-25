@@ -73,9 +73,12 @@ export function Coverflow({
       {/* Huge faded title behind the cards (drifts slightly against the mouse) */}
       <p
         aria-hidden
-        className="aq-backdrop pointer-events-none absolute inset-x-0 -top-6 text-center text-[clamp(2.25rem,8.5vw,8.5rem)] leading-none font-black whitespace-nowrap text-ink/[0.06] uppercase select-none sm:-top-10"
+        className="aq-backdrop pointer-events-none absolute inset-x-0 -top-6 text-center text-[clamp(2.25rem,8.5vw,8.5rem)] leading-none font-black whitespace-nowrap uppercase select-none sm:-top-10"
         style={{
           fontStretch: "125%",
+          background: "linear-gradient(to bottom, rgb(12 27 36 / 0.22) 30%, rgb(12 27 36 / 0) 78%)",
+          WebkitBackgroundClip: "text",
+          backgroundClip: "text",
           color: "transparent",
         }}
       >
@@ -112,12 +115,13 @@ export function Coverflow({
                 tabIndex={visible ? 0 : -1}
                 aria-label={slide.caption || `${fallbackCaption} ${i + 1}`}
                 aria-current={p === 0}
-                className="aq-card absolute top-1/2 left-1/2 overflow-hidden bg-limestone"
+                className="aq-card absolute top-1/2 left-1/2 overflow-hidden bg-limestone shadow-[0_20px_40px_rgb(12_27_36/0.18)]"
                 data-pos={visible ? p * forward : "hidden"}
               >
                 <span className="aq-tilt block size-full">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={slide.src} alt="" className="photo size-full object-cover" draggable={false} />
+                  <span className="aq-shine" aria-hidden />
                 </span>
               </button>
             );
