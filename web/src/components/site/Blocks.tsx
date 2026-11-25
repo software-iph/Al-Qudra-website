@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import type { Content } from "@/lib/content";
 import { Icon } from "./Icon";
-import { Arc, CountUp, MeasuredRule, Reveal, RevealImage, SplitText, Tiles } from "./Motion";
+import { Arc, CountUp, Reveal, RevealImage, SplitText, Tiles } from "./Motion";
 
 /** Ink header at the top of every inner page: documentary photo, ink gradient from the text side, the Arc. */
 export function PageHero({
@@ -153,7 +153,6 @@ export function StatsShowcase({ items }: { items: ReturnType<Content["items"]> }
             </Reveal>
           ))}
         </dl>
-        <MeasuredRule className="mt-6 max-w-md" />
       </div>
     </section>
   );
