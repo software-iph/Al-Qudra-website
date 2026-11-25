@@ -21,15 +21,24 @@ export function CinematicHero({ media, children, overlay }: { media: ReactNode; 
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   const clip = useTransform(scrollYProgress, [0, 1], ["inset(0% 0% 0% 0%)", "inset(9% 5% 9% 5%)"]);
   const zoom = useTransform(scrollYProgress, [0, 1], [1, 1.14]);
-  const textY = useTransform(scrollYProgress, [0, 0.7], ["0%", "-35%"]);
-  const textOpacity = useTransform(scrollYProgress, [0, 0.55], [1, 0]);
+  // The headline stays crisp and simply travels up; it only fades at the very end.
+  const textY = useTransform(scrollYProgress, [0, 0.75], ["0%", "-55%"]);
+  const textOpacity = useTransform(scrollYProgress, [0.4, 0.72], [1, 0]);
 
   return (
     <section ref={ref} className="relative h-[175svh] bg-paper">
       <div className="sticky top-0 h-svh overflow-hidden">
         <motion.div className="absolute inset-0 overflow-hidden bg-navy-900" style={{ clipPath: clip }}>
-          <motion.div className="absolute inset-0" style={{ scale: zoom }}>
-            {media}
+          {/* Opening shot: the film opens like a camera shutter, then settles from a slight zoom. */}
+          <motion.div
+            className="absolute inset-0"
+            initial={{ clipPath: "inset(47% 0% 47% 0%)", scale: 1.25 }}
+            animate={{ clipPath: "inset(0% 0% 0% 0%)", scale: 1 }}
+            transition={{ clipPath: { duration: 1.3, ease: [0.76, 0, 0.24, 1] }, scale: { duration: 2.2, ease: EASE } }}
+          >
+            <motion.div className="absolute inset-0" style={{ scale: zoom }}>
+              {media}
+            </motion.div>
           </motion.div>
           {overlay}
         </motion.div>
@@ -115,21 +124,21 @@ export function ServicesReel({ items, intro, rtl }: { items: Reel[]; intro: Reac
   return (
     <section ref={section} className="relative bg-navy-900 text-paper" style={{ height: distance ? distance + viewH : "100svh" }}>
       <div className="sticky top-0 flex h-svh flex-col justify-center overflow-hidden">
-        <motion.div ref={track} className="flex w-max items-center gap-6 px-5 sm:gap-8 sm:px-10 xl:px-[4.5rem]" style={{ x }}>
-          <div className="w-[78vw] shrink-0 sm:w-[46vw] lg:w-[34vw]">{intro}</div>
+        <motion.div ref={track} className="flex w-max items-center gap-5 px-5 sm:gap-6 sm:px-10 xl:px-[4.5rem]" style={{ x }}>
+          <div className="w-[78vw] shrink-0 sm:w-[40vw] lg:w-[28vw]">{intro}</div>
           {items.map((s, i) => (
             <Link
               key={s.id}
               href={s.href}
-              className="group relative block aspect-[4/5] w-[78vw] shrink-0 overflow-hidden bg-navy-800 sm:aspect-[4/3] sm:w-[62vw] lg:w-[46vw]"
+              className="group relative block aspect-[3/4] w-[70vw] shrink-0 overflow-hidden bg-navy-800 sm:w-[42vw] lg:w-[28vw]"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={s.image} alt="" className="photo absolute inset-0 size-full object-cover transition-transform duration-[1200ms] ease-settle group-hover:scale-[1.04]" />
-              <div className="absolute inset-0 bg-gradient-to-t from-navy-900/90 via-navy-900/10 to-transparent" aria-hidden />
-              <span className="label-mono absolute start-6 top-6 text-paper/80" dir="ltr">
+              <div className="absolute inset-0 bg-gradient-to-t from-navy-900/90 via-navy-900/10 to-navy-900/40" aria-hidden />
+              <span className="label-mono absolute start-5 top-5 bg-navy-900/70 px-2 py-1 text-paper" dir="ltr">
                 {String(i + 1).padStart(2, "0")} / {String(items.length).padStart(2, "0")}
               </span>
-              <h3 className="absolute inset-x-6 bottom-6 text-2xl font-extrabold text-balance sm:text-4xl" style={{ fontStretch: "112%" }}>
+              <h3 className="absolute inset-x-5 bottom-5 text-xl font-extrabold text-balance sm:text-2xl" style={{ fontStretch: "112%" }}>
                 {s.title}
               </h3>
             </Link>
@@ -238,5 +247,50 @@ export function HeaderPhoto({ src }: { src: string }) {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={src} alt="" className="photo size-full object-cover opacity-60" />
     </motion.div>
+  );
+}
+
+/** One drifting photo of the statement collage (its own speed = depth). */
+function Floater({ src, progress, travel, className }: { src: string; progress: MotionValue<number>; travel: number; className: string }) {
+  const y = useTransform(progress, [0, 1], [travel, -travel]);
+  return (
+    <motion.div className={`absolute hidden overflow-hidden bg-limestone lg:block ${className}`} style={{ y }} aria-hidden>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={src} alt="" className="photo size-full object-cover" />
+    </motion.div>
+  );
+}
+
+/**
+ * The statement: a large centred line that lights up word by word, while four
+ * photos drift past it at different speeds (near ones fast, far ones slow).
+ */
+export function StatementCollage({ text, photos, children }: { text: string; photos: string[]; children?: ReactNode }) {
+  const ref = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const [a, b, c, d] = photos;
+  return (
+    <section ref={ref} className="relative overflow-hidden py-28 sm:py-40 lg:min-h-[120svh] lg:py-56">
+      {a && <Floater src={a} progress={scrollYProgress} travel={140} className="start-[4%] top-[10%] aspect-[3/4] w-[17vw]" />}
+      {b && <Floater src={b} progress={scrollYProgress} travel={60} className="end-[6%] top-[6%] aspect-square w-[13vw]" />}
+      {c && <Floater src={c} progress={scrollYProgress} travel={220} className="start-[11%] bottom-[4%] aspect-[4/3] w-[12vw]" />}
+      {d && <Floater src={d} progress={scrollYProgress} travel={100} className="end-[3%] bottom-[10%] aspect-[4/5] w-[18vw]" />}
+
+      <div className="container-x relative">
+        <div className="mx-auto max-w-[46rem] text-center">
+          <ScrollWords
+            text={text}
+            className="text-4xl leading-[1.08] font-extrabold tracking-[-0.02em] text-ink sm:text-6xl lg:text-[4.25rem] rtl:leading-[1.35] rtl:tracking-normal"
+          />
+          {children}
+        </div>
+        {/* Phones and tablets: the photos sit in a row under the statement. */}
+        <div className="mt-14 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:hidden">
+          {photos.slice(0, 4).map((src, i) => (
+            <ParallaxPhoto key={i} src={src} speed={8} className="aspect-[3/4]" />
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
