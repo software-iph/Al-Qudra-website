@@ -2,6 +2,7 @@ import { ArrowUpRight, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import type { Content } from "@/lib/content";
+import { HeaderPhoto } from "./Cinematic";
 import { Icon } from "./Icon";
 import { Arc, CountUp, Reveal, RevealImage, SplitText, Tiles } from "./Motion";
 
@@ -19,8 +20,7 @@ export function PageHero({
 }) {
   return (
     <section className="relative isolate flex min-h-[min(68svh,40rem)] items-end overflow-hidden bg-navy-900 pt-40 pb-16 text-paper sm:pb-20">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={image} alt="" className="photo absolute inset-0 -z-20 size-full object-cover opacity-60" />
+      <HeaderPhoto src={image} />
       <div className="absolute inset-0 -z-10 bg-gradient-to-r from-navy-900 via-navy-900/70 to-navy-900/0 rtl:bg-gradient-to-l" aria-hidden />
       <div className="absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-t from-navy-900/90 to-transparent" aria-hidden />
       <Arc className="-end-40 -bottom-56 size-[34rem] sm:-end-24" tone="text-paper/[0.09]" />
