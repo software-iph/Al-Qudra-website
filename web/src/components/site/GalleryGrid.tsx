@@ -41,7 +41,7 @@ export function GalleryGrid({ items, rtl }: { items: GalleryItem[]; rtl: boolean
             onClick={() => setIndex(i)}
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-40px" }}
+            viewport={{ once: false, margin: "-40px" }}
             transition={{ duration: 0.7, delay: (i % 3) * 0.06, ease: [0.16, 1, 0.3, 1] }}
             className="group relative mb-5 block w-full overflow-hidden  bg-paper text-start"
           >

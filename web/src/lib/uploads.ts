@@ -55,7 +55,7 @@ export async function deleteUpload(src: string | null | undefined) {
 // ---------- CVs (private: never served publicly, only through the dashboard) ----------
 
 export const CV_DIR = path.join(UPLOAD_DIR, "private", "cv");
-const CV_MAX_MB = 10;
+const CV_MAX_MB = 5; // IPH Requirements Guide: PDF or Word, max 5 MB
 
 /** Checks the file's first bytes, not just its name, so only real PDF / Word files are kept. */
 function cvType(bytes: Buffer, name: string): "pdf" | "docx" | "doc" | null {

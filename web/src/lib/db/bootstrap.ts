@@ -6,6 +6,8 @@ import { db, schema } from "./index";
 import { LISTS, MEDIA, SERVICES, SETTINGS, TEXTS, TEXT_GROUPS } from "../seed-data";
 
 const OBSOLETE_TEXTS = ["careers.apply"];
+// Photo/video spots the website no longer uses (the 3D hero replaced the hero film).
+const OBSOLETE_MEDIA = ["home.hero_video", "services.hero_image"]; // services now live on the About page
 
 /**
  * Runs once when the server starts: applies database migrations, then adds any
@@ -55,6 +57,8 @@ async function seed() {
         sort: sql`excluded.sort`,
       },
     });
+
+  await db.delete(schema.media).where(inArray(schema.media.key, OBSOLETE_MEDIA));
 
   await db
     .insert(schema.settings)

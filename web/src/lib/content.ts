@@ -82,6 +82,14 @@ export async function getContent(lang: Locale) {
       }),
     ),
     gallery: data.gallery.map((g): GalleryItem => ({ id: g.id, src: g.src, caption: pick(g.captionEn, g.captionAr) })),
+    /** "Label: value" lines; lines without a value are skipped. */
+    facts: (key: string) =>
+      lines(textMap.get(key) ?? "")
+        .map((line) => {
+          const i = line.indexOf(":");
+          return i < 0 ? { label: "", value: line } : { label: line.slice(0, i).trim(), value: line.slice(i + 1).trim() };
+        })
+        .filter((f) => f.value),
   };
 }
 

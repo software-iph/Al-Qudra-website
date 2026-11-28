@@ -17,7 +17,7 @@ export default async function CareerEditPage({ params }: PageProps<"/admin/caree
   const isNew = id === "new";
   const [row] = isNew ? [] : await db.select().from(schema.careers).where(eq(schema.careers.id, Number(id)));
   if (!isNew && !row) notFound();
-  const job = row ?? { id: 0, titleEn: "", titleAr: "", descriptionEn: "", descriptionAr: "", employment: "full_time", location: "office", city: "Benghazi", applyMethod: "form", applyUrl: "", active: true };
+  const job = row ?? { id: 0, titleEn: "", titleAr: "", descriptionEn: "", descriptionAr: "", employment: "full_time", location: "office", city: "Benghazi", departmentEn: "", departmentAr: "", deadline: null as string | null, applyMethod: "form", applyUrl: "", active: true };
 
   return (
     <>
@@ -37,6 +37,9 @@ export default async function CareerEditPage({ params }: PageProps<"/admin/caree
               <Field label="Job title *">
                 <input name="titleEn" required defaultValue={job.titleEn} placeholder="e.g. Site Engineer" className={inputCls} />
               </Field>
+              <Field label="Department">
+                <input name="departmentEn" defaultValue={job.departmentEn} placeholder="e.g. Site Supervision" className={inputCls} />
+              </Field>
               <Field label="Description" hint="Responsibilities, requirements...">
                 <textarea name="descriptionEn" rows={8} defaultValue={job.descriptionEn} className={inputCls} />
               </Field>
@@ -47,6 +50,9 @@ export default async function CareerEditPage({ params }: PageProps<"/admin/caree
               <Field label="المسمى الوظيفي">
                 <input name="titleAr" defaultValue={job.titleAr} placeholder="مثال: مهندس موقع" className={inputCls} />
               </Field>
+              <Field label="القسم">
+                <input name="departmentAr" defaultValue={job.departmentAr} placeholder="مثال: الإشراف الميداني" className={inputCls} />
+              </Field>
               <Field label="الوصف">
                 <textarea name="descriptionAr" rows={8} defaultValue={job.descriptionAr} className={inputCls} />
               </Field>
@@ -54,7 +60,7 @@ export default async function CareerEditPage({ params }: PageProps<"/admin/caree
           </Panel>
         </div>
         <Panel title="Details">
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
             <Field label="Employment type">
               <select name="employment" defaultValue={job.employment} className={inputCls}>
                 {Object.entries(EMPLOYMENT).map(([v, l]) => (
@@ -75,6 +81,9 @@ export default async function CareerEditPage({ params }: PageProps<"/admin/caree
             </Field>
             <Field label="City">
               <input name="city" defaultValue={job.city} className={inputCls} />
+            </Field>
+            <Field label="Apply by (deadline)" hint="The job disappears from the website after this day. Leave empty to keep it open.">
+              <input name="deadline" type="date" defaultValue={job.deadline ?? ""} className={inputCls} />
             </Field>
             <label className="flex items-center gap-2 pt-7 text-sm font-bold text-navy-900">
               <input type="checkbox" name="active" defaultChecked={job.active} className="size-4 accent-navy-700" /> Open (shown on the website)

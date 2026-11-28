@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Thmanyah Sans font files: licensed, must not be uploaded to GitHub (see src/fonts/thmanyah/README.md)
+/src/fonts/thmanyah/*.woff2
+/src/fonts/thmanyah/*.otf

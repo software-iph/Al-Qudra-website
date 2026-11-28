@@ -10,7 +10,7 @@ const almarai = Almarai({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Dashboard", template: "%s · Alqudra dashboard" },
+  title: { default: "Dashboard", template: "%s · ALQUDRA dashboard" },
   robots: { index: false, follow: false },
 };
 

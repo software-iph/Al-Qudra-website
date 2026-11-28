@@ -46,7 +46,7 @@ export default async function DashboardPage() {
             <h1 className="text-2xl font-extrabold sm:text-3xl">
               {greeting}, {user.name}
             </h1>
-            <p className="mt-2 max-w-xl text-white/70">Everything on the Alqudra website is managed from here. Changes appear on the site immediately.</p>
+            <p className="mt-2 max-w-xl text-white/70">Everything on the ALQUDRA website is managed from here. Changes appear on the site immediately.</p>
           </div>
           <a href="/ar" target="_blank" className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-navy-800 transition hover:bg-sky-soft">
             Open website <ArrowRight className="size-4" />

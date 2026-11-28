@@ -15,20 +15,20 @@ export default async function LoginPage() {
         <div className="absolute inset-0 -z-10 bg-gradient-to-br from-navy-950 via-navy-900/90 to-navy-700/70" />
         <div className="grid-lines absolute inset-0 -z-10" />
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/brand/logo-paper.png" alt="Alqudra" className="h-11 w-auto self-start" />
+        <img src="/brand/logo-paper.png" alt="ALQUDRA" className="h-11 w-auto self-start" />
         <div>
-          <h1 className="max-w-md text-4xl leading-tight font-extrabold">Manage the Alqudra website from one place.</h1>
+          <h1 className="max-w-md text-4xl leading-tight font-extrabold">Manage the ALQUDRA website from one place.</h1>
           <p className="mt-5 max-w-md leading-8 text-white/65">
             Texts in English and Arabic, photos and videos, services, gallery, careers and messages.
           </p>
         </div>
-        <p className="text-sm text-white/40">© {new Date().getFullYear()} Al-Qudra for Engineering Consultancy</p>
+        <p className="text-sm text-white/40">© {new Date().getFullYear()} ALQUDRA — Aldaema for Engineering Consultations</p>
       </section>
 
       <section className="flex items-center justify-center px-6 py-16">
         <div className="w-full max-w-sm">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/logo-ink.png" alt="Alqudra" className="mb-10 h-10 w-auto lg:hidden" />
+          <img src="/brand/logo-ink.png" alt="ALQUDRA" className="mb-10 h-10 w-auto lg:hidden" />
           <h2 className="text-3xl font-extrabold text-navy-900">Welcome back</h2>
           <p className="mt-2 text-muted">Sign in to the dashboard.</p>
           <LoginForm />

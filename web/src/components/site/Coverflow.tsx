@@ -1,82 +1,86 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type Slide = { id: number; src: string; caption: string };
 
 /**
- * 3D "coverflow" carousel: the active photo sits in front in full colour,
- * two photos on each side fan out behind it in greyscale.
- * Arrows, dots, swipe, keyboard (when focused) and gentle autoplay.
+ * "Inside ALQUDRA": the original 3D coverflow (restored from commit 8a28824).
+ * The active photo sits in front in colour, two photos on each side swing back in 3D and
+ * greyscale, over a huge faded title that drifts against the mouse.
+ * Arrows on the stage, swipe, keyboard (←/→ when focused), a visible pause button,
+ * autoplay only for visitors who allow motion, paused on hover/focus (WCAG 2.2.2).
+ *
+ * Keep opacity, filter and transform off every ancestor of `.aq-stage`: any of them
+ * flattens the 3D scene.
  */
 export function Coverflow({
   slides,
   backdrop,
   fallbackCaption,
   rtl,
+  labels,
 }: {
   slides: Slide[];
   backdrop: string;
   fallbackCaption: string;
   rtl: boolean;
+  labels: { prev: string; next: string; pause: string; play: string };
 }) {
   const count = slides.length;
   const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const [hover, setHover] = useState(false);
+  const [stopped, setStopped] = useState(false);
   const touchX = useRef<number | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
-
-  const go = useCallback((next: number) => setIndex(((next % count) + count) % count), [count]);
-  // In Arabic the "next" photo comes from the left.
-  const forward = rtl ? -1 : 1;
-
-  // Autoplay is driven by the active dot's fill animation (see onAnimationEnd below),
-  // so hovering pauses both together. No autoplay for visitors who turned animations off.
   const reducedRef = useRef(true);
   useEffect(() => {
     reducedRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   }, []);
 
+  const go = useCallback((next: number) => setIndex(((next % count) + count) % count), [count]);
+  const forward = rtl ? -1 : 1; // in Arabic the next photo comes from the left
   if (count === 0) return null;
-  const active = slides[index];
 
-  // Position of each card relative to the active one: -2..2, others hidden.
   const position = (i: number) => {
     let offset = (i - index + count) % count;
     if (offset > count / 2) offset -= count;
     return offset;
   };
-
-  const caption = active.caption || fallbackCaption;
+  // Captions are optional (dashboard → Gallery); without one only the counter shows.
+  const caption = slides[index].caption;
+  const paused = hover || stopped;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const arrow =
+    "absolute top-1/2 z-20 flex size-12 -translate-y-1/2 items-center justify-center rounded-full bg-navy-800 text-white transition-colors duration-[160ms] hover:bg-navy-700";
 
   return (
     <div
-      className="aq-coverflow relative"
       ref={rootRef}
-      onMouseEnter={() => setPaused(true)}
+      className="aq-coverflow relative"
+      onMouseEnter={() => setHover(true)}
       onMouseLeave={() => {
-        setPaused(false);
+        setHover(false);
         rootRef.current?.style.setProperty("--mx", "0");
         rootRef.current?.style.setProperty("--my", "0");
       }}
       onPointerMove={(e) => {
-        // Mouse position as -1..1 for the tilt / parallax (CSS variables, no re-render).
+        // Mouse position as -1..1 for the tilt, shine and backdrop drift (CSS variables, no re-render).
         if (e.pointerType !== "mouse" || !rootRef.current) return;
         const r = rootRef.current.getBoundingClientRect();
         rootRef.current.style.setProperty("--mx", (((e.clientX - r.left) / r.width) * 2 - 1).toFixed(3));
         rootRef.current.style.setProperty("--my", (((e.clientY - r.top) / r.height) * 2 - 1).toFixed(3));
       }}
-      onFocus={() => setPaused(true)}
-      onBlur={() => setPaused(false)}
+      onFocus={() => setHover(true)}
+      onBlur={() => setHover(false)}
     >
-      {/* Huge faded title behind the cards (drifts slightly against the mouse) */}
+      {/* Huge faded title behind the cards */}
       <p
         aria-hidden
-        className="aq-backdrop pointer-events-none absolute inset-x-0 -top-6 text-center text-[clamp(2.25rem,8.5vw,8.5rem)] leading-none font-black whitespace-nowrap uppercase select-none sm:-top-10"
+        className="aq-backdrop pointer-events-none absolute inset-x-0 -top-4 overflow-hidden text-center font-display text-[clamp(2.5rem,9vw,9rem)] leading-none font-bold tracking-[-0.04em] whitespace-nowrap uppercase select-none sm:-top-8"
         style={{
-          fontStretch: "125%",
-          background: "linear-gradient(to bottom, rgb(12 27 36 / 0.22) 30%, rgb(12 27 36 / 0) 78%)",
+          background: "linear-gradient(to bottom, rgb(12 29 43 / 0.16) 25%, rgb(12 29 43 / 0) 80%)",
           WebkitBackgroundClip: "text",
           backgroundClip: "text",
           color: "transparent",
@@ -86,7 +90,7 @@ export function Coverflow({
       </p>
 
       <div
-        className="relative mx-auto h-[300px] max-w-6xl outline-none [perspective:1000px] sm:h-[420px]"
+        className="aq-stage relative mx-auto h-[280px] max-w-7xl outline-none sm:h-[420px] xl:h-[460px]"
         role="region"
         aria-roledescription="carousel"
         aria-label={backdrop}
@@ -115,12 +119,12 @@ export function Coverflow({
                 tabIndex={visible ? 0 : -1}
                 aria-label={slide.caption || `${fallbackCaption} ${i + 1}`}
                 aria-current={p === 0}
-                className="aq-card absolute top-1/2 left-1/2 overflow-hidden bg-limestone shadow-[0_20px_40px_rgb(12_27_36/0.18)]"
+                className="aq-card absolute top-1/2 left-1/2 overflow-hidden rounded-[4px] bg-limestone"
                 data-pos={visible ? p * forward : "hidden"}
               >
                 <span className="aq-tilt block size-full">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={slide.src} alt="" className="photo size-full object-cover" draggable={false} />
+                  <img src={slide.src} alt="" loading="lazy" className="photo size-full object-cover" draggable={false} />
                   <span className="aq-shine" aria-hidden />
                 </span>
               </button>
@@ -128,60 +132,45 @@ export function Coverflow({
           })}
         </div>
 
-        <button
-          type="button"
-          onClick={() => go(index - 1)}
-          aria-label="Previous"
-          className="absolute start-2 top-1/2 z-20 flex size-11 -translate-y-1/2 items-center justify-center rounded-[2px] bg-ink text-paper transition-colors duration-[120ms] hover:bg-navy-700 sm:start-5"
-        >
-          <ChevronLeft className="flip-rtl size-5" />
+        <button type="button" onClick={() => go(index - 1)} aria-label={labels.prev} className={`${arrow} start-0 sm:start-4`}>
+          <ChevronLeft className="flip-rtl size-5" aria-hidden />
         </button>
-        <button
-          type="button"
-          onClick={() => go(index + 1)}
-          aria-label="Next"
-          className="absolute end-2 top-1/2 z-20 flex size-11 -translate-y-1/2 items-center justify-center rounded-[2px] bg-ink text-paper transition-colors duration-[120ms] hover:bg-navy-700 sm:end-5"
-        >
-          <ChevronRight className="flip-rtl size-5" />
+        <button type="button" onClick={() => go(index + 1)} aria-label={labels.next} className={`${arrow} end-0 sm:end-4`}>
+          <ChevronRight className="flip-rtl size-5" aria-hidden />
         </button>
       </div>
 
-      {/* Caption of the active photo */}
-      <div className="mt-10 text-center" aria-live="polite">
-        {/* Re-animates only when the caption text itself changes. */}
-        <h3 key={caption} className="aq-caption relative inline-block px-2 text-2xl font-bold text-ink sm:text-4xl">
-          {caption}
-        </h3>
-        <p className="label-mono mt-3 text-concrete tabular-nums" dir="ltr">
-          <span className="text-navy-700">{String(index + 1).padStart(2, "0")}</span> / {String(count).padStart(2, "0")}
-        </p>
-        {/* Thin timer bar: fills until the next photo slides in. */}
-        <div className="mx-auto mt-4 h-0.5 w-28 overflow-hidden bg-line">
-          <span
-            key={index}
-            className="aq-progress block h-full bg-navy-700"
-            style={{ animationPlayState: paused ? "paused" : "running" }}
-            onAnimationEnd={() => {
-              if (!reducedRef.current && count > 1) go(index + 1);
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Dots stay in place; only the active one changes colour and size (no layout shifts). */}
-      <div className="mt-7 flex flex-wrap justify-center gap-2.5 px-6">
-        {slides.map((slide, i) => (
+      {/* Caption, counter, timer and pause */}
+      <div className="mt-12 flex flex-col items-center text-center">
+        {caption && (
+          <p key={caption} className="aq-caption mb-5 text-xl font-bold text-ink sm:text-2xl" aria-live="polite">
+            {caption}
+          </p>
+        )}
+        <div className="flex items-center gap-4">
+          <p className="label-mono text-concrete tabular-nums" dir="ltr">
+            <span className="text-navy-800">{pad(index + 1)}</span> / {pad(count)}
+          </p>
+          <span className="relative h-px w-24 overflow-hidden bg-navy-800/15" aria-hidden>
+            <span
+              key={index}
+              className="aq-progress absolute inset-0 bg-navy-800"
+              style={{ animationPlayState: paused ? "paused" : "running" }}
+              onAnimationEnd={() => {
+                if (!reducedRef.current && count > 1) go(index + 1);
+              }}
+            />
+          </span>
           <button
-            key={slide.id}
             type="button"
-            onClick={() => go(i)}
-            aria-label={`${fallbackCaption} ${i + 1}`}
-            aria-current={i === index}
-            className={`flex size-6 items-center justify-center before:block before:size-2 before:transition-[transform,background-color] before:duration-[200ms] before:ease-settle ${
-              i === index ? "before:rotate-[30deg] before:bg-ink" : "before:bg-ink/20 hover:before:bg-ink/45"
-            }`}
-          />
-        ))}
+            onClick={() => setStopped((s) => !s)}
+            aria-label={stopped ? labels.play : labels.pause}
+            aria-pressed={stopped}
+            className="flex size-9 items-center justify-center rounded-full border border-navy-800/20 text-navy-800 transition-colors duration-[160ms] hover:bg-navy-800/5"
+          >
+            {stopped ? <Play className="size-3.5" aria-hidden /> : <Pause className="size-3.5" aria-hidden />}
+          </button>
+        </div>
       </div>
     </div>
   );

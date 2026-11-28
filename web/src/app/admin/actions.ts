@@ -4,11 +4,13 @@ import bcrypt from "bcryptjs";
 import { and, count, eq, inArray, ne } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { createSession, destroySession, requireUser } from "@/lib/auth";
+import { headers } from "next/headers";
+import { createSession, destroySession, loginBlocked, loginFailed, loginSucceeded, requireUser } from "@/lib/auth";
 import { findLibraryFile, libraryUsage } from "@/lib/library";
 import { invalidateContent } from "@/lib/content";
 import { db, schema } from "@/lib/db";
 import { deleteCv, deleteUpload, isFile, saveUpload, UploadError } from "@/lib/uploads";
+import { APPLICATION_STATUS } from "@/lib/status";
 
 // ---------- helpers ----------
 
@@ -46,10 +48,19 @@ async function upload(path: string, file: File, folder: string, kind: "image" | 
 export async function login(_prev: string | null, fd: FormData): Promise<string | null> {
   const email = str(fd, "email").toLowerCase();
   const password = String(fd.get("password") ?? "");
+  const h = await headers();
+  const ip = h.get("x-forwarded-for")?.split(",")[0].trim() || h.get("x-real-ip") || "local";
+  const keys = [`email:${email}`, `ip:${ip}`];
+  const wait = loginBlocked(keys);
+  if (wait) return `Too many wrong attempts. Please try again in ${wait} minute${wait === 1 ? "" : "s"}.`;
   const [user] = await db.select().from(schema.users).where(eq(schema.users.email, email));
   // Always run bcrypt so response time does not reveal whether the email exists.
   const ok = await bcrypt.compare(password, user?.passwordHash ?? "$2b$12$TAPZgrXtPX4tceklS/DXRuhWlfeZEtTElvK6qqWGJWrW4FLGf/tzS");
-  if (!user || !ok) return "Wrong email or password.";
+  if (!user || !ok) {
+    loginFailed(keys);
+    return "Wrong email or password.";
+  }
+  loginSucceeded(keys);
   await createSession(user.id);
   redirect("/admin");
 }
@@ -272,6 +283,9 @@ export async function saveCareer(fd: FormData) {
     employment: EMPLOYMENT.includes(str(fd, "employment")) ? str(fd, "employment") : "full_time",
     location: LOCATION.includes(str(fd, "location")) ? str(fd, "location") : "office",
     city: str(fd, "city"),
+    departmentEn: str(fd, "departmentEn"),
+    departmentAr: str(fd, "departmentAr"),
+    deadline: /^\d{4}-\d{2}-\d{2}$/.test(str(fd, "deadline")) ? str(fd, "deadline") : null,
     applyMethod: str(fd, "applyMethod") === "link" ? "link" : "form",
     applyUrl: str(fd, "applyUrl"),
     active: bool(fd, "active"),
@@ -300,6 +314,15 @@ export async function deleteApplication(fd: FormData) {
   done("/admin/applications", "Application deleted.");
 }
 
+export async function setApplicationStatus(fd: FormData) {
+  await requireUser();
+  const id = num(fd, "id");
+  const status = str(fd, "status");
+  if (!(APPLICATION_STATUS as readonly string[]).includes(status)) fail(`/admin/applications/${id}`, "Unknown status.");
+  await db.update(schema.applications).set({ status }).where(eq(schema.applications.id, id));
+  done(`/admin/applications/${id}`, `Status set to "${status}".`);
+}
+
 export async function markApplicationUnread(fd: FormData) {
   await requireUser();
   await db.update(schema.applications).set({ readAt: null }).where(eq(schema.applications.id, num(fd, "id")));
@@ -312,6 +335,14 @@ export async function deleteMessage(fd: FormData) {
   await requireUser();
   await db.delete(schema.messages).where(eq(schema.messages.id, num(fd, "id")));
   done("/admin/messages", "Message deleted.");
+}
+
+export async function setMessageStatus(fd: FormData) {
+  await requireUser();
+  const id = num(fd, "id");
+  const status = str(fd, "status") === "replied" ? "replied" : "new";
+  await db.update(schema.messages).set({ status }).where(eq(schema.messages.id, id));
+  done(`/admin/messages/${id}`, status === "replied" ? "Marked as replied." : "Marked as not replied.");
 }
 
 export async function markMessagesRead(fd: FormData) {

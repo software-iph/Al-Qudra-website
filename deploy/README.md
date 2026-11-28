@@ -16,6 +16,13 @@ or any other site's containers.
 
 Uploaded photos/videos live in the `alqudra_uploads` volume, the database in `alqudra_db`.
 
+## Arabic font (one-time, before the first build of the redesign)
+
+The Arabic font (Thmanyah Sans) is licensed and not stored in GitHub. Copy the four files
+`thmanyahsans-Regular/Medium/Bold/Black.woff2` into `/opt/alqudra/src/web/src/fonts/thmanyah/`
+on the VPS once (for example with `scp`). They survive `git pull`. `update.sh` stops with a clear
+message if they are missing. Details: `web/src/fonts/thmanyah/README.md`.
+
 ## Updating the site (normal workflow)
 
 1. Push your changes to `main` on GitHub.

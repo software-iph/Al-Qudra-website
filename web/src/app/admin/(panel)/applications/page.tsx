@@ -82,7 +82,14 @@ export default async function ApplicationsPage({ searchParams }: PageProps<"/adm
                     <span className="truncate font-bold text-navy-900">{a.jobTitle || "Open application"}</span>
                     {a.city && <span className="truncate text-muted">· {a.city}</span>}
                   </span>
-                  <span className="text-xs text-muted">{a.createdAt.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}</span>
+                  <span className="flex items-center gap-3 text-xs text-muted">
+                    <span className={`rounded-full px-2.5 py-0.5 font-bold capitalize ring-1 ${
+                      a.status === "shortlisted" ? "bg-emerald-50 text-emerald-700 ring-emerald-600/15" : a.status === "rejected" ? "bg-red-50 text-red-700 ring-red-600/15" : a.status === "new" ? "bg-amber-50 text-amber-800 ring-amber-600/20" : "bg-slate-100 text-slate-600 ring-slate-500/10"
+                    }`}>
+                      {a.status}
+                    </span>
+                    {a.createdAt.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}
+                  </span>
                 </Link>
               </li>
             ))}

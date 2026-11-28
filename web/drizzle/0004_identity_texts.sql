@@ -1,0 +1,7 @@
+-- ALQUDRA identity (Brand Guidelines P:1.1): mission and vision wording.
+-- Only replaces the previous default text; anything edited in the dashboard is kept.
+UPDATE "texts" SET "value_en" = 'To be a leading, globally recognized engineering consultancy firm, celebrated for our innovative solutions, sustainable designs, and unwavering commitment to excellence.', "value_ar" = 'أن نكون شركة استشارات هندسية رائدة ومعترفًا بها عالميًا، تتميّز بحلولها المبتكرة وتصاميمها المستدامة والتزامها الراسخ بالتميّز.'
+WHERE "key" = 'about.vision' AND "value_en" = 'To be the most trusted engineering consultancy on the local level, and the primary benchmark for supervisory excellence and engineering governance in major national projects.';
+--> statement-breakpoint
+UPDATE "texts" SET "value_en" = 'To deliver exceptional consultancy services that add genuine value to our clients'' projects, while embracing sustainable practices that benefit both communities and the environment, and building long-term relationships rooted in trust, quality, and professionalism.', "value_ar" = 'تقديم خدمات استشارية متميّزة تضيف قيمة حقيقية لمشاريع عملائنا، مع تبنّي ممارسات مستدامة تعود بالنفع على المجتمعات والبيئة، وبناء علاقات طويلة الأمد قائمة على الثقة والجودة والاحترافية.'
+WHERE "key" = 'about.mission' AND "value_en" = 'To deliver world-class engineering consultancy services grounded in rigorous governance, technical precision and innovation, while upholding the highest standards of safety and quality.';

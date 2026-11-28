@@ -12,8 +12,6 @@ export const EASE = [0.2, 0, 0, 1] as const; // ease-settle
 const SETTLE = 0.48;
 const STAGGER = 0.06;
 
-const reducedMotion = () =>
-  typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /** Site-wide: honour the visitor's "reduce motion" setting (keeps fades, drops movement). */
 export function MotionProvider({ children }: { children: ReactNode }) {
@@ -42,7 +40,7 @@ export function Reveal({
     <motion.div
       className={className}
       initial={{ opacity: 0, y }}
-      {...(onMount ? { animate: shown } : { whileInView: shown, viewport: { once: true, margin: "-60px" } })}
+      {...(onMount ? { animate: shown } : { whileInView: shown, viewport: { once: false, margin: "-60px" } })}
       transition={{ duration, delay, ease: EASE }}
     >
       {children}
@@ -73,7 +71,7 @@ export function SplitText({
 }) {
   const words = text.split(/\s+/).filter(Boolean);
   const step = Math.min(stagger, (STAGGER * 6) / Math.max(words.length, 1)); // max 6 steps of 60 ms
-  const trigger = onMount ? { animate: "show" } : { whileInView: "show", viewport: { once: true, margin: "-60px" } };
+  const trigger = onMount ? { animate: "show" } : { whileInView: "show", viewport: { once: false, margin: "-60px" } };
 
   return (
     <Tag className={className} aria-label={text}>
@@ -113,7 +111,7 @@ export function RevealImage({
 }) {
   const ref = useRef<HTMLDivElement>(null);
   // Watch the outer frame (never clipped): a fully clipped element counts as invisible to the browser.
-  const shown = useInView(ref, { once: true, margin: "-80px" });
+  const shown = useInView(ref, { once: false, margin: "-80px" });
   const state = shown ? "show" : "hide";
 
   return (
@@ -187,7 +185,7 @@ export function CountUp({
 }) {
   const ref = useRef<HTMLSpanElement>(null);
   const number = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: "0px 0px -80px 0px" });
+  const inView = useInView(ref, { once: false, margin: "0px 0px -80px 0px" });
 
   const target = typeof value === "number" ? value : parseInt(String(value).replace(/[^\d]/g, ""), 10) || 0;
   const format = (n: number) => Math.round(n).toLocaleString("en-US");
@@ -231,7 +229,7 @@ export function Arc({ className = "", tone = "text-paper/[0.07]" }: { className?
       className={`pointer-events-none absolute ${tone} ${className}`}
       initial={{ opacity: 0, rotate: -6 }}
       whileInView={{ opacity: 1, rotate: 0 }}
-      viewport={{ once: true }}
+      viewport={{ once: false }}
       transition={{ duration: 0.96, ease: EASE }}
       aria-hidden
     >
@@ -260,7 +258,7 @@ export function Tiles({
   dark?: boolean;
 }) {
   const tones = [dark ? "bg-paper" : "bg-ink", dark ? "bg-sky" : "bg-navy-700", "bg-copper"].slice(3 - count);
-  const trigger = onMount ? { animate: "show" } : { whileInView: "show", viewport: { once: true, margin: "-40px" } };
+  const trigger = onMount ? { animate: "show" } : { whileInView: "show", viewport: { once: false, margin: "-40px" } };
   return (
     <motion.span className={`inline-flex items-end ${className}`} initial="hide" {...trigger} transition={{ staggerChildren: STAGGER }} aria-hidden>
       {tones.map((tone, i) => (
@@ -294,7 +292,7 @@ export function MeasuredRule({ label, className = "", light = false }: { label?:
         className="block h-5 w-full origin-left rtl:origin-right"
         initial={{ scaleX: 0 }}
         whileInView={{ scaleX: 1 }}
-        viewport={{ once: true, margin: "-40px" }}
+        viewport={{ once: false, margin: "-40px" }}
         transition={{ duration: 0.96, ease: EASE }}
       >
         <line x1="0" y1="21.5" x2="400" y2="21.5" stroke="currentColor" strokeWidth="1" vectorEffect="non-scaling-stroke" />

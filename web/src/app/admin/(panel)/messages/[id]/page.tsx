@@ -6,7 +6,7 @@ import { ConfirmButton } from "@/components/admin/client";
 import { btn, PageHeader, Panel } from "@/components/admin/ui";
 import { requireUser } from "@/lib/auth";
 import { db, schema } from "@/lib/db";
-import { deleteMessage } from "../../../actions";
+import { deleteMessage, setMessageStatus } from "../../../actions";
 
 export default async function MessagePage({ params }: PageProps<"/admin/messages/[id]">) {
   await requireUser();
@@ -45,8 +45,17 @@ export default async function MessagePage({ params }: PageProps<"/admin/messages
               </a>
             )}
             <p className="text-muted">{m.createdAt.toLocaleString("en-GB", { dateStyle: "full", timeStyle: "short" })}</p>
+            <form action={setMessageStatus} className="flex items-center justify-between gap-3 border-t border-line pt-4">
+              <input type="hidden" name="id" value={m.id} />
+              <span className="text-sm">
+                Status: <strong className="text-navy-900">{m.status === "replied" ? "Replied" : "New"}</strong>
+              </span>
+              <button name="status" value={m.status === "replied" ? "new" : "replied"} className={btn.secondary}>
+                {m.status === "replied" ? "Mark as not replied" : "Mark as replied"}
+              </button>
+            </form>
             <div className="flex gap-2 border-t border-line pt-4">
-              <a href={`mailto:${m.email}?subject=${encodeURIComponent(`Re: ${m.subject || "Your message to Al-Qudra"}`)}`} className={`${btn.primary} flex-1`}>
+              <a href={`mailto:${m.email}?subject=${encodeURIComponent(`Re: ${m.subject || "Your message to ALQUDRA"}`)}`} className={`${btn.primary} flex-1`}>
                 <Reply className="size-4" /> Reply
               </a>
               <form action={deleteMessage}>

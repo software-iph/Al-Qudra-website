@@ -79,7 +79,11 @@ export default async function CareersAdminPage() {
                   </td>
                   <td className="px-5 py-4 text-muted">{job.createdAt.toLocaleDateString("en-GB")}</td>
                   <td className="px-5 py-4">
-                    <Badge tone={job.active ? "green" : "slate"}>{job.active ? "Open" : "Closed"}</Badge>
+                    {(() => {
+                      const expired = !!job.deadline && job.deadline < new Date().toISOString().slice(0, 10);
+                      const open = job.active && !expired;
+                      return <Badge tone={open ? "green" : "slate"}>{open ? (job.deadline ? `Open until ${job.deadline}` : "Open") : expired ? "Closed (deadline passed)" : "Closed"}</Badge>;
+                    })()}
                   </td>
                   <td className="px-5 py-4">
                     <div className="flex justify-end gap-2">

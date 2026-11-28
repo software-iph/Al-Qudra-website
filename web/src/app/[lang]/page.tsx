@@ -1,100 +1,105 @@
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { StatsShowcase } from "@/components/site/Blocks";
-import { RingReveal, ServicesReel, StackedPillars, StatementCollage } from "@/components/site/Cinematic";
-import { GalleryMarquee } from "@/components/site/GalleryMarquee";
-import { Reveal, SplitText, Tiles } from "@/components/site/Motion";
-import { SmartVideo } from "@/components/site/SmartVideo";
+import { CtaBand } from "@/components/site/Blocks";
+import { ChapterGrid, ChapterIndex, DataSheet, Figure, RailLabel } from "@/components/site/Chapter";
+import { Coverflow } from "@/components/site/Coverflow";
+import { GoldenSquareHero } from "@/components/site/GoldenSquareHero";
+import { Reveal, SplitText } from "@/components/site/Motion";
 import { getContent } from "@/lib/content";
 import { isLocale } from "@/lib/i18n";
 
+/*
+ * Home, deliberately short: 1 3D hero · 2 profile (who we are + figures, in the hero's navy) · 3 inside ALQUDRA (3D coverflow) · 4 contact.
+ * After the hero the page reads as one "site record": every chapter shares the index-rail grid in Chapter.tsx.
+ * The full story, services, mission & vision, values and Q³ live on the About page.
+ */
 export default async function HomePage({ params }: PageProps<"/[lang]">) {
   const { lang } = await params;
   if (!isLocale(lang)) notFound();
   const c = await getContent(lang);
+  const ar = lang === "ar";
 
   return (
     <>
-      {/* 1. Hero: the site film, still and simple (no entrance or scroll animation) */}
-      <section className="relative isolate flex min-h-[min(100svh,60rem)] items-end overflow-hidden bg-navy-900 pt-36 pb-16 text-paper">
-        <div className="absolute inset-0 -z-10">
-          <SmartVideo src={c.media("home.hero_video")} poster={c.media("home.hero_poster")} eager className="photo size-full object-cover opacity-80" />
-          <div className="absolute inset-0 bg-gradient-to-r from-navy-900/95 via-navy-900/55 to-navy-900/0 rtl:bg-gradient-to-l" aria-hidden />
-          <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-navy-900/90 to-transparent" aria-hidden />
-          {/* The Arc, cropped by the frame */}
-          <svg viewBox="0 0 100 100" className="absolute -end-64 -bottom-[28rem] size-[56rem] text-paper/[0.08] sm:-end-40" aria-hidden>
-            <circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" strokeWidth="6" />
-          </svg>
-        </div>
-        <div className="container-x">
-          <div className="max-w-5xl">
-            <p className="label-mono text-paper/75">{c.t("home.hero_eyebrow")}</p>
-            <h1 className="display mt-6">{c.t("home.hero_title")}</h1>
-            <div className="mt-10 flex flex-wrap gap-3">
-              <Link href={`/${lang}/about#services`} className="btn-light px-7 py-4 text-base">
-                {c.t("home.hero_primary")}
-                <ArrowRight className="flip-rtl size-5" aria-hidden />
-              </Link>
-              <Link href={`/${lang}/contact`} className="btn-ghost px-7 py-4 text-base">
-                {c.t("home.hero_secondary")}
-              </Link>
+      {/* 1. Hero: the scroll story around Golden Square */}
+      <GoldenSquareHero
+        rtl={ar}
+        eyebrow={c.t("home.hero_eyebrow")}
+        title={c.t("home.hero_title")}
+        text={c.t("home.hero_text")}
+        primary={{ label: c.t("home.hero_primary"), href: `/${lang}/about#services` }}
+        secondary={{ label: c.t("home.hero_secondary"), href: `/${lang}/contact` }}
+        scenes={[
+          { kicker: c.t("hero.scene2_kicker"), title: c.t("hero.scene2_title"), text: c.t("hero.scene2_text") },
+          { kicker: c.t("hero.scene3_kicker"), title: c.t("hero.scene3_title"), text: c.t("hero.scene3_text") },
+          { kicker: c.t("hero.scene4_kicker"), title: c.t("hero.scene4_title"), text: c.t("hero.scene4_text") },
+        ]}
+        finalButton={{ label: c.t("hero.scene4_button"), href: `/${lang}/contact` }}
+        floorLabel={c.t("hero.floor_label")}
+        modelNote={c.t("hero.model_note")}
+        scrollLabel={c.t("nav.scroll")}
+        poster={c.media("home.hero_poster")}
+        model="/hero/golden-square.glb"
+      />
+
+      {/* 2. Profile — continues the hero's navy world: who we are, then the figures as evidence */}
+      <section className="on-dark relative isolate overflow-hidden bg-navy-900 pt-28 pb-28 text-white sm:pt-36 sm:pb-36">
+        <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-60 bg-[linear-gradient(180deg,rgb(8_21_33),transparent)]" aria-hidden />
+        <ChapterGrid rail={<ChapterIndex n={1} label={c.t("home.about_eyebrow")} light />}>
+          <div className="grid gap-12 md:grid-cols-12 md:gap-x-12">
+            <div className="md:col-span-7">
+              <SplitText text={c.t("home.about_title")} className="heading !text-white" />
+              <Reveal delay={0.08} className="mt-10 max-w-xl md:mt-14">
+                <p className="text-lg leading-[1.75] text-white/72">{c.t("home.about_text")}</p>
+                <Link href={`/${lang}/about`} className="group mt-9 inline-flex items-center gap-3 border-b border-white/30 pb-1.5 text-[13px] font-bold tracking-[0.12em] text-white uppercase transition-colors duration-[160ms] hover:border-white rtl:tracking-normal rtl:normal-case">
+                  {c.t("nav.learn_more")}
+                  <ArrowRight className="flip-rtl size-4 transition-transform duration-[220ms] group-hover:translate-x-1 rtl:group-hover:-translate-x-1" aria-hidden />
+                </Link>
+              </Reveal>
             </div>
+            <Figure src={c.media("home.about_image")} caption={c.t("home.about_caption")} className="md:col-span-4 md:col-start-9" square />
           </div>
-        </div>
+        </ChapterGrid>
+
+        <ChapterGrid
+          className="mt-16 sm:mt-20"
+          rail={
+            <RailLabel light>
+              {c.t("home.numbers_eyebrow")}
+            </RailLabel>
+          }
+        >
+          <DataSheet items={c.items("stats").slice(0, 3).map((s) => ({ id: s.id, value: s.body, label: s.title }))} />
+        </ChapterGrid>
       </section>
 
-      {/* 2. One statement, lit word by word, with photos drifting past at different depths */}
-      <StatementCollage
-        text={c.t("home.about_title")}
-        photos={[c.media("home.about_image"), ...c.gallery.slice(0, 1).map((g) => g.src), c.media("home.about_image_2")]}
-      >
-        <Tiles className="mt-12" />
-        <Reveal delay={0.1}>
-          <Link href={`/${lang}/about`} className="btn-primary mt-10 px-8 py-4 text-base">
-            {c.t("nav.learn_more")}
-            <ArrowRight className="flip-rtl size-4" aria-hidden />
-          </Link>
-        </Reveal>
-      </StatementCollage>
-
-      {/* 3. Headline numbers */}
-      <StatsShowcase items={c.items("stats")} />
-
-      {/* 4. Services slide past sideways while you scroll */}
-      <ServicesReel
-        rtl={lang === "ar"}
-        items={c.services.map((s) => ({ id: s.id, title: s.title, image: s.image, href: `/${lang}/about#service-${s.id}` }))}
-        intro={
-          <div>
-            <SplitText text={c.t("services.title")} className="heading !text-paper" />
-            <Link href={`/${lang}/about#services`} className="btn-ghost mt-10">
-              {c.t("nav.learn_more")}
-              <ArrowRight className="flip-rtl size-4" aria-hidden />
-            </Link>
+      {/* 3. Inside ALQUDRA — the restored 3D coverflow of real team photos */}
+      {c.gallery.length > 0 && (
+        <section className="relative overflow-hidden py-28 sm:py-36">
+          <ChapterGrid rail={<ChapterIndex n={2} label={c.t("nav.gallery")} />}>
+            <div className="flex flex-wrap items-end justify-between gap-8">
+              <SplitText text={c.t("home.gallery_title")} className="heading max-w-[16ch]" />
+              <Link href={`/${lang}/gallery`} className="btn-outline">
+                {c.t("nav.view_all")} <span dir="ltr">({c.gallery.length})</span>
+                <ArrowUpRight className="flip-rtl size-4" aria-hidden />
+              </Link>
+            </div>
+          </ChapterGrid>
+          <div className="container-x mt-16 sm:mt-24">
+            <Coverflow
+              slides={c.gallery.slice(0, 12)}
+              backdrop={c.t("home.gallery_eyebrow")}
+              fallbackCaption={c.t("home.gallery_eyebrow")}
+              rtl={ar}
+              labels={{ prev: c.t("nav.previous"), next: c.t("nav.next"), pause: c.t("nav.pause"), play: c.t("nav.play") }}
+            />
           </div>
-        }
-      />
+        </section>
+      )}
 
-      {/* 5. The Q³ pillars stack like sheets */}
-      <StackedPillars
-        items={c.items("q3").map((p) => ({ id: p.id, title: p.title, body: p.body }))}
-        heading={<SplitText text={c.t("home.q3_title")} className="display" />}
-      />
-
-      {/* 6. Inside ALQUDRA */}
-      <GalleryMarquee c={c} />
-
-      {/* 7. A photo opens out of the Q ring */}
-      <RingReveal src={c.media("home.cta_image")}>
-        <div className="container-x grid items-end gap-10 lg:grid-cols-[1fr_auto]">
-          <h2 className="display max-w-3xl">{c.t("home.cta_title")}</h2>
-          <Link href={`/${lang}/contact`} className="btn-accent px-8 py-4 text-base">
-            {c.t("home.cta_button")}
-            <ArrowUpRight className="flip-rtl size-5" aria-hidden />
-          </Link>
-        </div>
-      </RingReveal>
+      {/* 4. Next step */}
+      <CtaBand c={c} />
     </>
   );
 }

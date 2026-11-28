@@ -54,7 +54,10 @@ export default async function MessagesPage({ searchParams }: PageProps<"/admin/m
                     {m.subject && <strong className="text-navy-900">{m.subject} · </strong>}
                     {m.message}
                   </span>
-                  <span className="text-xs text-muted">{m.createdAt.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}</span>
+                  <span className="flex items-center gap-3 text-xs text-muted">
+                    {m.status === "replied" && <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 font-bold text-emerald-700 ring-1 ring-emerald-600/15">Replied</span>}
+                    {m.createdAt.toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })}
+                  </span>
                 </Link>
               </li>
             ))}

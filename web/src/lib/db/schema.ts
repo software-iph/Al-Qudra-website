@@ -1,5 +1,6 @@
 import {
   boolean,
+  date,
   integer,
   pgTable,
   serial,
@@ -89,6 +90,9 @@ export const careers = pgTable("careers", {
   employment: varchar("employment", { length: 20 }).notNull().default("full_time"), // full_time | part_time | contract | internship
   location: varchar("location", { length: 20 }).notNull().default("office"), // office | on_site | hybrid | remote
   city: varchar("city", { length: 100 }).notNull().default(""),
+  departmentEn: varchar("department_en", { length: 120 }).notNull().default(""),
+  departmentAr: varchar("department_ar", { length: 120 }).notNull().default(""),
+  deadline: date("deadline"), // last day to apply; the job disappears from the website after it
   applyMethod: varchar("apply_method", { length: 10 }).notNull().default("form"), // form (on this website) | link
   applyUrl: text("apply_url").notNull().default(""), // used when applyMethod = link
   active: boolean("active").notNull().default(true),
@@ -108,6 +112,7 @@ export const applications = pgTable("applications", {
   message: text("message").notNull().default(""),
   cvFile: text("cv_file").notNull(), // file name inside uploads/private/cv
   cvName: varchar("cv_name", { length: 255 }).notNull(), // original file name
+  status: varchar("status", { length: 20 }).notNull().default("new"), // new | reviewed | shortlisted | rejected
   readAt: timestamp("read_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -119,6 +124,7 @@ export const messages = pgTable("messages", {
   phone: varchar("phone", { length: 50 }).notNull().default(""),
   subject: varchar("subject", { length: 200 }).notNull().default(""),
   message: text("message").notNull(),
+  status: varchar("status", { length: 20 }).notNull().default("new"), // new | replied
   readAt: timestamp("read_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });

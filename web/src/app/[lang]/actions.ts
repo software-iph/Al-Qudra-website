@@ -1,12 +1,15 @@
 "use server";
 
 import { headers } from "next/headers";
-import { and, eq } from "drizzle-orm";
+import { and, eq, gte, isNull, or, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db, schema } from "@/lib/db";
 import { deleteCv, saveCv } from "@/lib/uploads";
 
-export type FormState = { ok: boolean; error?: "invalid" | "error" | "busy" | "cv"; fields?: string[] } | null;
+export type FormState = { ok: boolean; error?: "invalid" | "error" | "busy" | "cv" | "consent"; fields?: string[] } | null;
+
+/** The visitor ticked the privacy consent box (checked again on the server). */
+const consented = (fd: FormData) => fd.get("consent") === "yes";
 
 // Small in-memory rate limit: 5 submissions per 10 minutes per IP and form.
 const hits = new Map<string, number[]>();
@@ -33,8 +36,10 @@ export async function submitContact(_prev: FormState, formData: FormData): Promi
   if (formData.get("website")) return { ok: true }; // honeypot: bots fill hidden fields
   const parsed = contactSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
-    return { ok: false, error: "invalid", fields: parsed.error.issues.map((i) => String(i.path[0])) };
+    const fields = parsed.error.issues.map((i) => String(i.path[0]));
+    return { ok: false, error: "invalid", fields: consented(formData) ? fields : [...fields, "consent"] };
   }
+  if (!consented(formData)) return { ok: false, error: "consent", fields: ["consent"] };
   if (await limited("contact")) return { ok: false, error: "busy" };
   try {
     await db.insert(schema.messages).values(parsed.data);
@@ -78,8 +83,10 @@ export async function submitApplication(_prev: FormState, formData: FormData): P
   const hasCv = cv instanceof File && cv.size > 0;
   if (!parsed.success || !hasCv) {
     const bad = parsed.success ? [] : parsed.error.issues.map((i) => String(i.path[0]));
-    return { ok: false, error: !hasCv && parsed.success ? "cv" : "invalid", fields: hasCv ? bad : [...bad, "cv"] };
+    const fields = [...bad, ...(hasCv ? [] : ["cv"]), ...(consented(formData) ? [] : ["consent"])];
+    return { ok: false, error: !hasCv && parsed.success ? "cv" : "invalid", fields };
   }
+  if (!consented(formData)) return { ok: false, error: "consent", fields: ["consent"] };
   const { careerId, ...data } = parsed.data;
 
   // Only open jobs that take applications on the website.
@@ -88,7 +95,15 @@ export async function submitApplication(_prev: FormState, formData: FormData): P
     const [job] = await db
       .select({ titleEn: schema.careers.titleEn })
       .from(schema.careers)
-      .where(and(eq(schema.careers.id, careerId), eq(schema.careers.active, true), eq(schema.careers.applyMethod, "form")));
+      .where(
+        and(
+          eq(schema.careers.id, careerId),
+          eq(schema.careers.active, true),
+          eq(schema.careers.applyMethod, "form"),
+          // closed automatically after the deadline
+          or(isNull(schema.careers.deadline), gte(schema.careers.deadline, sql`current_date`)),
+        ),
+      );
     if (!job) return { ok: false, error: "error" };
     jobTitle = job.titleEn;
   }

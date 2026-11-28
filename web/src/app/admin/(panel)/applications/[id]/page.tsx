@@ -6,7 +6,8 @@ import { ConfirmButton } from "@/components/admin/client";
 import { btn, PageHeader, Panel } from "@/components/admin/ui";
 import { requireUser } from "@/lib/auth";
 import { db, schema } from "@/lib/db";
-import { deleteApplication, markApplicationUnread } from "../../../actions";
+import { APPLICATION_STATUS } from "@/lib/status";
+import { deleteApplication, markApplicationUnread, setApplicationStatus } from "../../../actions";
 
 export default async function ApplicationPage({ params }: PageProps<"/admin/applications/[id]">) {
   await requireUser();
@@ -14,7 +15,11 @@ export default async function ApplicationPage({ params }: PageProps<"/admin/appl
   const A = schema.applications;
   const [a] = await db.select().from(A).where(eq(A.id, id));
   if (!a) notFound();
-  if (!a.readAt) await db.update(A).set({ readAt: new Date() }).where(and(eq(A.id, id), isNull(A.readAt)));
+  // Opening a new application marks it read and "reviewed".
+  if (!a.readAt) {
+    await db.update(A).set({ readAt: new Date(), status: a.status === "new" ? "reviewed" : a.status }).where(and(eq(A.id, id), isNull(A.readAt)));
+    if (a.status === "new") a.status = "reviewed";
+  }
   const job = a.jobTitle || "Open application";
   const isPdf = a.cvFile.endsWith(".pdf");
   const cvUrl = `/admin/applications/${a.id}/cv`;
@@ -79,8 +84,27 @@ export default async function ApplicationPage({ params }: PageProps<"/admin/appl
                 <Link2 className="size-4 shrink-0" /> {a.link}
               </a>
             )}
+            <form action={setApplicationStatus} className="grid gap-2 border-t border-line pt-4">
+              <input type="hidden" name="id" value={a.id} />
+              <span className="text-sm font-bold text-navy-900">Status</span>
+              <div className="grid grid-cols-2 gap-2">
+                {APPLICATION_STATUS.map((s) => (
+                  <button
+                    key={s}
+                    name="status"
+                    value={s}
+                    aria-pressed={a.status === s}
+                    className={`rounded-xl px-3 py-2 text-sm font-bold capitalize ring-1 transition ${
+                      a.status === s ? "bg-navy-700 text-white ring-navy-700" : "bg-white text-navy-800 ring-line hover:bg-paper"
+                    }`}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            </form>
             <div className="flex flex-wrap gap-2 border-t border-line pt-4">
-              <a href={`mailto:${a.email}?subject=${encodeURIComponent(`Your application: ${job} - Al-Qudra`)}`} className={`${btn.primary} flex-1`}>
+              <a href={`mailto:${a.email}?subject=${encodeURIComponent(`Your application: ${job} - ALQUDRA`)}`} className={`${btn.primary} flex-1`}>
                 <Reply className="size-4" /> Reply
               </a>
               <form action={markApplicationUnread}>

@@ -14,7 +14,7 @@ const LISTS: Record<string, { label: string; help: string }> = {
   q3: { label: "Q³ pillars", help: "The three pillars of the Q³ methodology (Home and About pages)." },
   values: { label: "Core values", help: "Shown on the About and Careers pages; the first four also appear on the Home page." },
   goals: { label: "Strategic goals", help: "Shown on the About page." },
-  strengths: { label: "What sets us apart", help: "The cards in the \"Why Al-Qudra\" section on the Home page." },
+  strengths: { label: "What sets us apart", help: "The cards in the \"Why ALQUDRA\" section on the Home page." },
 };
 
 type Item = typeof schema.listItems.$inferSelect;

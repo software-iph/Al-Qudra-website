@@ -3,6 +3,7 @@
 import { ArrowUpRight, CircleCheck, FileText, Send, Upload, X } from "lucide-react";
 import { useActionState, useRef, useState } from "react";
 import { submitApplication } from "@/app/[lang]/actions";
+import { Consent, formError } from "./Forms";
 
 type Labels = Record<string, string>;
 
@@ -41,14 +42,14 @@ export function JobApply({
       <dialog
         ref={dialog}
         aria-labelledby={`apply-${jobId}`}
-        className="aq-dialog m-auto max-h-[92dvh] w-[min(680px,calc(100%-1.5rem))] overflow-y-auto rounded-[2px] bg-paper p-0 text-ink backdrop:bg-navy-900/70"
+        className="aq-dialog m-auto max-h-[92dvh] w-[min(680px,calc(100%-1.5rem))] overflow-y-auto rounded-[2px] bg-paper p-0 text-ink "
         onClick={(e) => {
           if (e.target === e.currentTarget) close(); // click on the dimmed background
         }}
       >
         <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-line bg-paper px-6 py-5 sm:px-8">
           <div>
-            <p className="text-sm font-bold text-navy-700">{heading}</p>
+            <p className="label-mono text-patina-700">{heading}</p>
             <h2 id={`apply-${jobId}`} className="mt-1 text-xl font-bold text-ink sm:text-2xl">
               {jobTitle}
             </h2>
@@ -74,7 +75,7 @@ export function JobApply({
 function ApplicationForm({ jobId, labels: l, onFinish }: { jobId: number; labels: Labels; onFinish: () => void }) {
   const [state, action, pending] = useActionState(submitApplication, null);
   const [fileName, setFileName] = useState("");
-  const bad = (field: string) => (state?.fields?.includes(field) ? "border-red-400 focus:border-red-400 focus:ring-red-400/10" : "");
+  const bad = (field: string) => (state?.fields?.includes(field) ? "border-[#b3412f]" : "");
 
   if (state?.ok) {
     return (
@@ -90,7 +91,7 @@ function ApplicationForm({ jobId, labels: l, onFinish }: { jobId: number; labels
     );
   }
 
-  const error = !state || state.ok ? null : state.error === "cv" ? l.cv_invalid : state.error === "invalid" ? l.invalid : l.error;
+  const error = formError(state, l);
 
   return (
     <form action={action} className="relative grid gap-4 px-6 py-6 sm:grid-cols-2 sm:px-8" noValidate>
@@ -122,7 +123,7 @@ function ApplicationForm({ jobId, labels: l, onFinish }: { jobId: number; labels
         <span className="text-sm font-bold text-ink">{l.cv} *</span>
         <label
           className={`flex cursor-pointer items-center gap-4  border-2 border-dashed px-5 py-4 transition hover:border-navy-700 hover:bg-limestone/40 ${
-            state?.fields?.includes("cv") ? "border-red-400" : fileName ? "border-navy-700 bg-limestone/40" : "border-line"
+            state?.fields?.includes("cv") ? "border-[#b3412f]" : fileName ? "border-navy-700 bg-limestone/40" : "border-line"
           }`}
         >
           <span className="icon-tile size-11 shrink-0">{fileName ? <FileText className="size-5" /> : <Upload className="size-5" />}</span>
@@ -148,13 +149,17 @@ function ApplicationForm({ jobId, labels: l, onFinish }: { jobId: number; labels
         <textarea name="message" rows={4} maxLength={3000} className="field resize-y" />
       </label>
 
+      <div className="sm:col-span-2">
+        <Consent text={l.consent} linkLabel={l.consentLink} href={l.privacyHref} invalid={state?.fields?.includes("consent")} />
+      </div>
+
       <div className="flex flex-wrap items-center gap-4 pt-1 sm:col-span-2">
-        <button type="submit" disabled={pending} className="btn-accent px-8 py-4 disabled:opacity-60">
+        <button type="submit" disabled={pending} aria-busy={pending} className="btn-primary disabled:opacity-60">
           {pending ? l.sending : l.submit}
           <Send className="flip-rtl size-4" aria-hidden />
         </button>
         {error && (
-          <p className="text-sm font-bold text-red-600" role="alert">
+          <p className="text-sm font-medium text-[#b3412f]" role="alert">
             {error}
           </p>
         )}
