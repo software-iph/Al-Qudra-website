@@ -1,7 +1,6 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import { useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
@@ -12,7 +11,9 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
  *   Scene 3  the 4th floor lights up      -> where we work (pinned label)
  *   Scene 4  aerial, the ALQUDRA ring     -> the brand line
  * three.js is loaded only after the first paint; until then (and without WebGL) the poster shows.
- * Reduced motion: no scroll story, a single still frame with the first scene.
+ * The scroll story follows the visitor's own scrolling, so it runs for everyone (the site owner
+ * asked for it with Windows animation effects off). Reduced motion only drops the self-running
+ * extras: the drifting sky and the mouse sway. Without WebGL the poster and the first scene show.
  */
 
 export type HeroScene = { kicker: string; title: string; text: string };
@@ -60,12 +61,13 @@ export function GoldenSquareHero(props: HeroProps) {
   const [beat, setBeat] = useState(0);
   const [ready, setReady] = useState(false);
   const [pinOn, setPinOn] = useState(false);
-  const reducedMotion = useReducedMotion();
   const [noGL, setNoGL] = useState(false);
-  const still = !!reducedMotion || noGL; // reduced motion or no WebGL / model
+  // Decided only after mount (state), so the server and the first client render always match.
+  const still = noGL; // no WebGL / model
 
   useEffect(() => {
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Reduced motion: keep the scroll story, drop the ambient animation (sky drift, mouse sway).
+    const ambient = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let disposed = false;
     let cleanup = () => {};
 
@@ -411,21 +413,19 @@ export function GoldenSquareHero(props: HeroProps) {
       const frame = (now: number) => {
         const dt = Math.min(0.05, (now - last) / 1000);
         last = now;
-        if (!reduce) prog += (target - prog) * (1 - Math.exp(-dt * 7));
+        prog += (target - prog) * (1 - Math.exp(-dt * 7));
         pmx += (mx - pmx) * (1 - Math.exp(-dt * 3));
         pmy += (my - pmy) * (1 - Math.exp(-dt * 3));
-        apply(prog, reduce ? 0 : now);
+        apply(prog, ambient ? now : 0);
         composer.render();
-        if (visible && !reduce) raf = requestAnimationFrame(frame);
+        if (visible) raf = requestAnimationFrame(frame);
       };
 
       resize();
-      if (!reduce) {
-        readScroll();
-        prog = target;
-        window.addEventListener("scroll", readScroll, { passive: true });
-        window.addEventListener("pointermove", onMove, { passive: true });
-      }
+      readScroll();
+      prog = target;
+      window.addEventListener("scroll", readScroll, { passive: true });
+      if (ambient) window.addEventListener("pointermove", onMove, { passive: true });
       window.addEventListener("resize", resize);
       const io = new IntersectionObserver((entries) => {
         visible = entries[0].isIntersecting;
@@ -462,7 +462,7 @@ export function GoldenSquareHero(props: HeroProps) {
   const activeBeat = still ? 0 : beat;
 
   return (
-    <section ref={storyRef} aria-label={eyebrow} className={`relative bg-navy-900 text-paper ${still ? "" : "h-[520vh]"}`}>
+    <section ref={storyRef} aria-label={eyebrow} className={`aq-scroll-story relative bg-navy-900 text-paper ${still ? "" : "h-[520vh]"}`}>
       <div ref={stageRef} className="on-dark sticky top-0 h-svh overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

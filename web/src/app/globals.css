@@ -544,6 +544,11 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+  /* The home hero's scroll story moves only as the visitor scrolls: its scene changes keep their fades. */
+  .aq-scroll-story,
+  .aq-scroll-story * {
+    transition-duration: 480ms !important;
+  }
   .aq-band-track {
     animation: none !important;
   }

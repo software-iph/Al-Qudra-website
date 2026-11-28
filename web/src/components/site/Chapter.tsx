@@ -1,6 +1,6 @@
 "use client";
 
-import { animate, motion, useInView, useReducedMotion, useScroll, useTransform } from "motion/react";
+import { animate, motion, useInView, useScroll, useTransform } from "motion/react";
 import { useEffect, useRef, type ReactNode } from "react";
 
 const EASE = [0.2, 0, 0, 1] as const;
@@ -128,7 +128,7 @@ export function Figure({
   square?: boolean;
 }) {
   const ref = useRef<HTMLElement>(null);
-  const reduce = useReducedMotion();
+  // Scroll-linked drift: same markup on server and browser, runs for everyone.
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const y = useTransform(scrollYProgress, [0, 1], ["-7%", "7%"]);
   if (!src) return null;
@@ -136,7 +136,7 @@ export function Figure({
     <figure ref={ref} className={className}>
       <div className={`relative aspect-[4/3] overflow-hidden rounded-[4px] ${square ? "md:aspect-square" : "md:aspect-[4/5]"} ${light ? "bg-navy-850" : "bg-limestone"}`}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <motion.img src={src} alt="" loading="lazy" className="photo absolute inset-x-0 -top-[8%] h-[116%] w-full object-cover" style={reduce ? undefined : { y }} />
+        <motion.img src={src} alt="" loading="lazy" className="photo absolute inset-x-0 -top-[8%] h-[116%] w-full object-cover" style={{ y }} />
       </div>
       <figcaption className={`mt-4 flex items-baseline gap-3 border-t pt-4 ${light ? "border-white/12" : "border-navy-800/15"}`}>
         <span className={`label-mono shrink-0 whitespace-nowrap tabular-nums ${light ? "text-white/85" : "text-navy-800"}`} dir="ltr">

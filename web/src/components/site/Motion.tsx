@@ -13,9 +13,14 @@ const SETTLE = 0.48;
 const STAGGER = 0.06;
 
 
-/** Site-wide: honour the visitor's "reduce motion" setting (keeps fades, drops movement). */
+/**
+ * Site-wide motion settings. The site owner wants the entrance and scroll motion visible on every
+ * device (their own PC runs with Windows animation effects off), so motion/react always animates.
+ * This also keeps server and browser markup identical (the "user" setting dropped transforms only in
+ * the browser, causing hydration warnings). Self-running CSS loops still respect reduced motion.
+ */
 export function MotionProvider({ children }: { children: ReactNode }) {
-  return <MotionConfig reducedMotion="user">{children}</MotionConfig>;
+  return <MotionConfig reducedMotion="never">{children}</MotionConfig>;
 }
 
 /** Settles its children into place (16 px rise and fade) once, as the visitor scrolls. */
