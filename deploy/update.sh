@@ -16,10 +16,10 @@ git log -1 --format="    %h %s (%cr)"
 compose() { docker compose --project-directory "$ROOT" -f "$ROOT/src/deploy/docker-compose.yml" "$@"; }
 
 # The Arabic font files are licensed and kept out of GitHub: they must be copied onto the VPS once.
-for f in Regular Medium Bold Black; do
+for f in Regular Medium Bold; do
   if [ ! -f "$ROOT/src/web/src/fonts/thmanyah/thmanyahsans-$f.woff2" ]; then
     echo "!!  Missing font: web/src/fonts/thmanyah/thmanyahsans-$f.woff2"
-    echo "    Copy the four Thmanyah Sans woff2 files there first (see web/src/fonts/thmanyah/README.md)."
+    echo "    Copy the Thmanyah Sans woff2 files there first (see web/src/fonts/thmanyah/README.md)."
     echo "    Nothing was changed; the running site is untouched."
     exit 1
   fi

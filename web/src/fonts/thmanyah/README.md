@@ -7,11 +7,11 @@ The Arabic text on the website uses Thmanyah Sans (English uses Almarai). It is 
 to any platform (GitHub included), so they are git-ignored. Copy them in yourself:
 
 1. Download the family from thmanyah's official site (https://thmanyah.com) with a company email.
-2. From the package, copy these four files from `thmanyahsans/woff2/` into this folder:
+2. From the package, copy these three files from `thmanyahsans/woff2/` into this folder:
    - `thmanyahsans-Regular.woff2`
    - `thmanyahsans-Medium.woff2`
-   - `thmanyahsans-Bold.woff2`
-   - `thmanyahsans-Black.woff2`
+   - `thmanyahsans-Bold.woff2` (also used for the heaviest weights)
+   - optional: `thmanyahsans-Black.woff2` (see the note in `src/app/[lang]/layout.tsx` to switch it on)
 3. Do not rename or modify them.
 
 **The site will not build without them** (`npm run build` / `npm run dev` stop with a "font file

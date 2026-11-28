@@ -19,8 +19,9 @@ const thmanyah = localFont({
   src: [
     { path: "../../fonts/thmanyah/thmanyahsans-Regular.woff2", weight: "400", style: "normal" },
     { path: "../../fonts/thmanyah/thmanyahsans-Medium.woff2", weight: "500", style: "normal" },
-    { path: "../../fonts/thmanyah/thmanyahsans-Bold.woff2", weight: "700", style: "normal" },
-    { path: "../../fonts/thmanyah/thmanyahsans-Black.woff2", weight: "900", style: "normal" },
+    // Bold also serves the heaviest weights (800-900). The company's licensed package currently has no
+    // Black file; to use it, add { path: ".../thmanyahsans-Black.woff2", weight: "900" } and set this to "700".
+    { path: "../../fonts/thmanyah/thmanyahsans-Bold.woff2", weight: "700 900", style: "normal" },
   ],
   variable: "--font-thmanyah",
   display: "swap",
