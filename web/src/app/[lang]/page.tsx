@@ -39,7 +39,7 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
         floorLabel={c.t("hero.floor_label")}
         modelNote={c.t("hero.model_note")}
         scrollLabel={c.t("nav.scroll")}
-        poster={c.media("home.hero_poster")}
+        poster="/images/hero-3d.jpg" // fixed: the 3D scroll story is not edited from the dashboard (texts are)
         model="/hero/golden-square.glb"
       />
 

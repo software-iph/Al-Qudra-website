@@ -7,7 +7,8 @@ import { LISTS, MEDIA, SERVICES, SETTINGS, TEXTS, TEXT_GROUPS } from "../seed-da
 
 const OBSOLETE_TEXTS = ["careers.apply"];
 // Photo/video spots the website no longer uses (the 3D hero replaced the hero film).
-const OBSOLETE_MEDIA = ["home.hero_video", "services.hero_image"]; // services now live on the About page
+// home.hero_poster: the 3D hero stays as designed; only its texts are edited in the dashboard.
+const OBSOLETE_MEDIA = ["home.hero_video", "services.hero_image", "home.hero_poster"]; // services now live on the About page
 
 /**
  * Runs once when the server starts: applies database migrations, then adds any

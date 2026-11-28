@@ -336,7 +336,6 @@ export const MEDIA: M[] = [
   ["brand.logo_dark", "Brand", "Logo (ink, for light backgrounds)", "image", "/brand/logo-ink.png"],
   ["brand.logo_light", "Brand", "Logo (paper, for dark backgrounds)", "image", "/brand/logo-paper.png"],
   ["brand.iph_logo", "Brand", "IPH Group logo for the dark footer (official IPH file)", "image", "/brand/iph/iph-gold-white.svg"],
-  ["home.hero_poster", "Home", "Hero still image (shown while the 3D model loads, and on devices without 3D)", "image", "/images/hero-3d.jpg"],
   ["home.about_image", "Home", "Who we are: photo (shown as a 4:5 portrait crop)", "image", "/images/office-poster.webp"],
   ["home.about_image_2", "Home", "Who we are: small photo", "image", "/images/about-two-three.webp"],
   ["home.q3_image", "Home", "Q³ section photo", "image", "/images/counter-image.webp"],
